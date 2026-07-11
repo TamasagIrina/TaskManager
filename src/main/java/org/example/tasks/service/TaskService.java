@@ -1,11 +1,19 @@
 package org.example.tasks.service;
 
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
+import org.example.tasks.mapper.TaskMapper;
+import org.example.tasks.model.Task;
+import org.example.tasks.repository.TaskRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,72 +22,68 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class TaskService {
-    private List<TaskDTO> tasks= new ArrayList<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
-
+    private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     public List<TaskDTO> getTasks() {
         log.info("Getting Tasks: ");
 
-        return tasks;
+        return taskRepository.findAll()
+                .stream()
+                .map(taskMapper::toDTO)
+                .toList();
     }
 
-
+    @Transactional
     public List<TaskDTO> addTask(TaskCreateDTO taskCreateDTO) {
-        TaskDTO newTask = buildTask(taskCreateDTO);
+        Task newTask = taskMapper.toEntity(taskCreateDTO);
+        taskRepository.save(newTask);
 
-        tasks.add(newTask);
+        log.info("Added Task: {} ", newTask);
 
-        log.info("Added Task: {} " , newTask);
-
-        return tasks;
+        return getTasks();
     }
 
-
+    @Transactional
     public List<TaskDTO> addTasks(List<TaskCreateDTO> taskDTO) {
-       for (TaskCreateDTO task : taskDTO) {
-           addTask(task);
-       }
+        for (TaskCreateDTO task : taskDTO) {
+            addTask(task);
+        }
 
-        return tasks;
+        return getTasks();
     }
 
     public TaskDTO getTaskById(Long id) {
-
-        for (TaskDTO task : tasks) {
-            if (task.getId().equals(id)) {
-                return task;
-            }
-        }
-
-        throw new NoSuchElementException("Task not found with id: " + id);
+        return taskRepository.findById(id)
+                .map(taskMapper::toDTO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Task not found with id: " + id));
     }
 
     // actualizeaza toate informatiile unui task
     public TaskDTO updateTaskById(Long id, TaskCreateDTO taskCreateDTO) {
+        Task task = getTaskEntityOrThrow(id);
 
-        TaskDTO task= getTaskById(id);
-        task.setId(id);
-        task.setContent(taskCreateDTO.getContent());
-        task.setStatus(taskCreateDTO.getStatus());
+        task.setTaskName(taskCreateDTO.getTaskName());
+        task.setStatusType(taskMapper.resolveStatusType(taskCreateDTO.getStatusTypeId()));
+        task.setUser(taskMapper.resolveUser(taskCreateDTO.getUserId()));
+        task.setDueDate(taskCreateDTO.getDueDate());
 
-        log.info("Updated Task: {} " , task);
+        Task saved = taskRepository.save(task);
 
-        return task;
+        log.info("Updated Task: {} ", saved);
+
+        return taskMapper.toDTO(saved);
     }
 
-
     public void deleteTaskById(Long id) {
-
-        for (TaskDTO taskDTO : tasks) {
-            if (taskDTO.getId().equals(id)) {
-                tasks.remove(taskDTO);
-                return;
-            }
+        if (!taskRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Task not found with id: " + id);
         }
-
-        throw new NoSuchElementException("Task not found with id: " + id);
+        taskRepository.deleteById(id);
     }
 
     // filtreaza task-urile in functie de criteriile primite
@@ -87,107 +91,114 @@ public class TaskService {
 
         List<TaskDTO> result = new ArrayList<>();
 
-        for (TaskDTO task : tasks) {
+        for (Task task : taskRepository.findAll()) {
             if (checkStatus(task, filter)
-                    && checkContent(task, filter)
+                    && checkTaskName(task, filter)
+                    && checkUser(task, filter)
                     && checkDueDateTime(task, filter)) {
-                result.add(task);
+                result.add(taskMapper.toDTO(task));
             }
         }
-
 
         return result;
     }
 
     // verifica daca statusul task-ului corespunde filtrului
-    private boolean checkStatus(TaskDTO task, TaskFilterDTO filter) {
+    private boolean checkStatus(Task task, TaskFilterDTO filter) {
 
-        if (filter.getStatus() == null) {
+        if (filter.getStatusName() == null) {
             return true;
         }
 
-        return task.getStatus().equalsIgnoreCase(filter.getStatus());
+        return task.getStatusType() != null
+                && filter.getStatusName().equalsIgnoreCase(task.getStatusType().getStatusName());
     }
 
-    // verifica daca descrierea task-ului contine textul cautat
-    private boolean checkContent(TaskDTO task, TaskFilterDTO filter) {
+    // verifica daca numele task-ului contine textul cautat
+    private boolean checkTaskName(Task task, TaskFilterDTO filter) {
 
-        if (filter.getContent() == null) {
+        if (filter.getTaskName() == null) {
             return true;
         }
 
-        return task.getContent().toLowerCase().contains(filter.getContent().toLowerCase());
+        return task.getTaskName() != null
+                && task.getTaskName().toLowerCase().contains(filter.getTaskName().toLowerCase());
+    }
+
+    // verifica daca userul asignat corespunde filtrului
+    private boolean checkUser(Task task, TaskFilterDTO filter) {
+
+        if (filter.getUsername() == null) {
+            return true;
+        }
+
+        return task.getUser() != null
+                && filter.getUsername().equalsIgnoreCase(task.getUser().getUsername());
     }
 
     // verifica daca data limita corespunde filtrului
-    private boolean checkDueDateTime(TaskDTO task, TaskFilterDTO filter) {
+    private boolean checkDueDateTime(Task task, TaskFilterDTO filter) {
 
         if (filter.getDueDateTime() == null) {
             return true;
         }
 
-        return task.getDueDateTime().equals(filter.getDueDateTime());
+        return task.getDueDate() != null
+                && task.getDueDate().isEqual(filter.getDueDateTime().toLocalDate());
     }
 
     // actualizeaza doar statusul unui task
-    public TaskDTO updateStatus(Long id, String status) {
+    public TaskDTO updateStatus(Long id, String statusTypeId) {
 
-        TaskDTO task = getTaskById(id);
+        Task task = getTaskEntityOrThrow(id);
 
-        task.setStatus(status);
+        task.setStatusType(taskMapper.resolveStatusType(statusTypeId));
 
-        return task;
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDTO(saved);
     }
 
+    // actualizeaza doar userul asignat unui task (userId = null -> il dezasigneaza)
+    public TaskDTO updateUser(Long id, Long userId) {
+
+        Task task = getTaskEntityOrThrow(id);
+
+        task.setUser(taskMapper.resolveUser(userId));
+
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDTO(saved);
+    }
+
+
     // actualizeaza doar data limita a unui task
-    public TaskDTO updateDueDateTime(Long id, LocalDateTime  dueDateTime) {
-        TaskDTO task = getTaskById(id);
+    public TaskDTO updateDueDateTime(Long id, LocalDateTime dueDateTime) {
+        Task task = getTaskEntityOrThrow(id);
 
-        task.setDueDateTime(dueDateTime);
+        task.setDueDate(dueDateTime != null ? dueDateTime.toLocalDate() : null);
 
-        return task;
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDTO(saved);
     }
 
     // numara task-urile in functie de status sau returneaza numarul tuturor task-urile
-    public long countTasks(String status) {
-
-        long count = 0;
-
-        if (status == null) {
-            return tasks.size();
+    public long countTasks(String statusTypeId) {
+        if (statusTypeId == null) {
+            return taskRepository.count();
         }
-
-        for (TaskDTO task : tasks) {
-            if (task.getStatus().equalsIgnoreCase(status)) {
-                count++;
-            }
-        }
-        return count;
+        return taskRepository.countByStatusType_StatusTypeId(statusTypeId);
     }
 
     // returneaza task-urile care au depasit data limita
     public List<TaskDTO> getOverdueTasks() {
-        LocalDateTime now = LocalDateTime.now();
-
-        List<TaskDTO> overdue = new ArrayList<>();
-
-        for (TaskDTO task : tasks) {
-            if (task.getDueDateTime() != null && task.getDueDateTime().isBefore(now)) {
-                overdue.add(task);
-            }
-        }
-
-
-        return overdue;
+        return taskRepository.findByDueDateBefore(LocalDate.now())
+                .stream()
+                .map(taskMapper::toDTO)
+                .toList();
     }
 
-
-    private TaskDTO buildTask(TaskCreateDTO taskCreateDTO) {
-        return TaskDTO.builder()
-                .id(idGenerator.getAndIncrement())
-                .content(taskCreateDTO.getContent())
-                .status(taskCreateDTO.getStatus())
-                .dueDateTime(taskCreateDTO.getDueDateTime())
-                .build();
+    private Task getTaskEntityOrThrow(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Task not found with id: " + id));
     }
 }

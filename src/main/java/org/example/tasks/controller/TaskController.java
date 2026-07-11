@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 @RequestMapping("/tasks")
 public class TaskController {
 
-    private TaskService taskService;
+    private final TaskService taskService;
 
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
@@ -35,51 +35,39 @@ public class TaskController {
     }
 
     @PostMapping("/list")
-    public List<TaskDTO> createTasks(@RequestBody  @Valid List<TaskCreateDTO>  taskCreateDTOList) {
+    public List<TaskDTO> createTasks(@RequestBody @Valid List<TaskCreateDTO> taskCreateDTOList) {
         return taskService.addTasks(taskCreateDTOList);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById( @PathVariable Long id) {
-
-        try {
-            TaskDTO task = taskService.getTaskById(id);
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+        TaskDTO task = taskService.getTaskById(id);
+        return ResponseEntity.ok(task);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<TaskDTO> updateTask(@RequestBody @Valid TaskCreateDTO taskCreateDTO, @PathVariable Long id) {
-        try {
-            TaskDTO task = taskService.updateTaskById(id, taskCreateDTO);
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        TaskDTO task = taskService.updateTaskById(id, taskCreateDTO);
+        return ResponseEntity.ok(task);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<TaskDTO> deleteTaskById(@PathVariable Long id) {
-        try {
-            taskService.deleteTaskById(id);
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
+        taskService.deleteTaskById(id);
+        return ResponseEntity.noContent().build();
     }
-
 
     @GetMapping("/filter")
     public List<TaskDTO> filterTasks(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String content,
+            @RequestParam(required = false) String taskName,
+            @RequestParam(required = false) String statusName,
+            @RequestParam(required = false) String username,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
-                .status(status)
-                .content(content)
+                .taskName(taskName)
+                .statusName(statusName)
+                .username(username)
                 .dueDateTime(dueDateTime)
                 .build();
 
@@ -87,30 +75,29 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestParam String status) {
-        try {
-            TaskDTO task = taskService.updateStatus(id, status);
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestParam String statusTypeId) {
+        TaskDTO task = taskService.updateStatus(id, statusTypeId);
+        return ResponseEntity.ok(task);
+    }
+
+    @PatchMapping("/{id}/user")
+    public ResponseEntity<TaskDTO> updateTaskUser(@PathVariable Long id,
+                                                  @RequestParam(required = false) Long userId) {
+        TaskDTO task = taskService.updateUser(id, userId);
+        return ResponseEntity.ok(task);
     }
 
     @PatchMapping("/{id}/due-date-time")
     public ResponseEntity<TaskDTO> updateDueDateTime(
             @PathVariable Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime) {
-        try {
-            TaskDTO task = taskService.updateDueDateTime(id, dueDateTime);
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        TaskDTO task = taskService.updateDueDateTime(id, dueDateTime);
+        return ResponseEntity.ok(task);
     }
 
     @GetMapping("/count")
-    public long countTasks(@RequestParam(required = false) String status) {
-        return taskService.countTasks(status);
+    public long countTasks(@RequestParam(required = false) String statusTypeId) {
+        return taskService.countTasks(statusTypeId);
     }
 
     @GetMapping("/overdue")

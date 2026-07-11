@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @ToString
 public class TaskFilterDTO {
 
-    private String status;
-    private String content;
+    private String taskName;
+    private String statusName;
+    private String username;
     private LocalDateTime dueDateTime;
 }

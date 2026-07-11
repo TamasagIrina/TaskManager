@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,14 +16,16 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 public class TaskCreateDTO {
+
     @NotBlank()
     @Size(max = 500)
-    private String content;
+    private String taskName;
 
-    @NotBlank()
-    @Pattern(regexp = "TODO|IN_PROGRESS|DONE")
-    private String status;
+    @Size(max = 255)
+    private String statusTypeId;
 
-    @Future()
-    private LocalDateTime dueDateTime;
+    private Long userId;
+
+    @Future
+    private LocalDate dueDate;
 }

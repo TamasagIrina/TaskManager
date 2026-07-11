@@ -1,37 +1,43 @@
 package org.example.tasks.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.NumericBooleanConverter;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TASKS")
+@Table(name="users")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Task {
-
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TASK_ID")
-    private Long taskId;
+    @Column(name = "USER_ID")
+    private Long userId;
 
-    @Column(name = "TASK_NAME", nullable = false, length = 500)
-    private String taskName;
+    @Column(name = "USERNAME", nullable = false, length = 500)
+    private String username;
 
-    @Column(name = "DUE_DATE")
-    private LocalDate dueDate;
+    @Column(name = "BIRTH_DATE", nullable = false)
+    private LocalDate birthDate;
 
-    @Column(name = "CREATED_BY", length = 50)
-    private String createdBy;
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "IS_INTERNAL", nullable = false)
+    private Boolean isInternal;
 
     @Column(name = "CREATION_DATE", nullable = false, updatable = false)
     private LocalDateTime creationDate;
+
+    @Column(name = "CREATED_BY", nullable = false, updatable = false, length = 50)
+    private String createdBy;
+
 
     @Column(name = "LAST_UPDATE_DATE", nullable = false)
     private LocalDateTime lastUpdateDate;
@@ -53,24 +59,14 @@ public class Task {
         if (this.lastUpdatedBy == null) {
             this.lastUpdatedBy = this.createdBy;
         }
+        //cand adaugam audentificare cu Spring Security createdBy si createdByFullName se vor lua din token
+        //nu mi se pare corect sa le punem noi de mana, le las acum setate default
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.lastUpdateDate = LocalDateTime.now();
-        this.lastUpdatedBy = "APP_USER";
+        this.lastUpdatedBy = "USER";
 
     }
-
-    // FK -> status_types(status_type_id)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STATUS_TYPE_ID", referencedColumnName = "STATUS_TYPE_ID")
-    private StatusType statusType;
-
-    // FK -> users(user_id)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID")
-    private User user;
-
-
 }
