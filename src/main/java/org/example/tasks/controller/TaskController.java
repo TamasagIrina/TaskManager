@@ -1,6 +1,8 @@
 package org.example.tasks.controller;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
@@ -10,19 +12,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/tasks")
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
 
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
 
     @GetMapping
     public List<TaskDTO> getTasks() {
@@ -103,5 +104,11 @@ public class TaskController {
     @GetMapping("/overdue")
     public List<TaskDTO> getOverdueTasks() {
         return taskService.getOverdueTasks();
+    }
+
+    @GetMapping("/due-between")
+    public List<TaskDTO> getTasksDueBetween(@RequestParam LocalDate start,
+                                         @RequestParam LocalDate end) {
+        return taskService.getTasksDueBetween(start, end);
     }
 }

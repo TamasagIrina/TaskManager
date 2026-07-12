@@ -50,7 +50,7 @@ public class StatusType {
         }
 
         //cand adaugam audentificare cu Spring Security createdBy si createdByFullName se vor lua din token
-        //nu mi se pare corect sa le punem noi de mana, le las acum setate default
+        //nu mi se pare e ok sa le setam noi de mana, momentan sunt pe default
     }
 
     @PreUpdate

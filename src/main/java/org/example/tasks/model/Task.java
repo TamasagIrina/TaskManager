@@ -62,12 +62,12 @@ public class Task {
 
     }
 
-    // FK -> status_types(status_type_id)
+    // FK  status_types(status_type_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STATUS_TYPE_ID", referencedColumnName = "STATUS_TYPE_ID")
     private StatusType statusType;
 
-    // FK -> users(user_id)
+    // FK  users(user_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID")
     private User user;

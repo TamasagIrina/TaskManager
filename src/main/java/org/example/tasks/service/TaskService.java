@@ -7,8 +7,12 @@ import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.mapper.TaskMapper;
+import org.example.tasks.model.StatusType;
 import org.example.tasks.model.Task;
+import org.example.tasks.model.User;
+import org.example.tasks.repository.StatusTypeRepository;
 import org.example.tasks.repository.TaskRepository;
+import org.example.tasks.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +29,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @AllArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+    private final StatusTypeRepository statusTypeRepository;
     private final TaskMapper taskMapper;
 
     public List<TaskDTO> getTasks() {
@@ -39,6 +45,9 @@ public class TaskService {
     @Transactional
     public List<TaskDTO> addTask(TaskCreateDTO taskCreateDTO) {
         Task newTask = taskMapper.toEntity(taskCreateDTO);
+
+        //aici se vor seta createdBy si createdByFullName din token
+
         taskRepository.save(newTask);
 
         log.info("Added Task: {} ", newTask);
@@ -63,6 +72,7 @@ public class TaskService {
     }
 
     // actualizeaza toate informatiile unui task
+    @Transactional
     public TaskDTO updateTaskById(Long id, TaskCreateDTO taskCreateDTO) {
         Task task = getTaskEntityOrThrow(id);
 
@@ -71,6 +81,8 @@ public class TaskService {
         task.setUser(taskMapper.resolveUser(taskCreateDTO.getUserId()));
         task.setDueDate(taskCreateDTO.getDueDate());
 
+        //se va seta lastUpdatedBy din token
+
         Task saved = taskRepository.save(task);
 
         log.info("Updated Task: {} ", saved);
@@ -78,6 +90,7 @@ public class TaskService {
         return taskMapper.toDTO(saved);
     }
 
+    @Transactional
     public void deleteTaskById(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -148,22 +161,28 @@ public class TaskService {
     }
 
     // actualizeaza doar statusul unui task
+    @Transactional
     public TaskDTO updateStatus(Long id, String statusTypeId) {
 
         Task task = getTaskEntityOrThrow(id);
+        StatusType statusType= getStatusTypeEntityOrThrow(statusTypeId);
 
-        task.setStatusType(taskMapper.resolveStatusType(statusTypeId));
+        task.setStatusType(statusType);
+        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);
     }
 
-    // actualizeaza doar userul asignat unui task (userId = null -> il dezasigneaza)
+    // actualizeaza doar userul asignat unui task
+    @Transactional
     public TaskDTO updateUser(Long id, Long userId) {
 
         Task task = getTaskEntityOrThrow(id);
+        User user = getUserEntityOrThrow(userId);
 
-        task.setUser(taskMapper.resolveUser(userId));
+        task.setUser(user);
+        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);
@@ -171,10 +190,12 @@ public class TaskService {
 
 
     // actualizeaza doar data limita a unui task
+    @Transactional
     public TaskDTO updateDueDateTime(Long id, LocalDateTime dueDateTime) {
         Task task = getTaskEntityOrThrow(id);
 
         task.setDueDate(dueDateTime != null ? dueDateTime.toLocalDate() : null);
+        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);
@@ -196,9 +217,29 @@ public class TaskService {
                 .toList();
     }
 
+    // returneaza task-urile care sunt in interval
+    public List<TaskDTO> getTasksDueBetween(LocalDate start, LocalDate end) {
+        return taskRepository.findTasksDueBetween(start, end)
+                .stream()
+                .map(taskMapper::toDTO)
+                .toList();
+    }
+
     private Task getTaskEntityOrThrow(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Task not found with id: " + id));
+    }
+
+    private User getUserEntityOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User not found with id: " + id));
+    }
+
+    private StatusType getStatusTypeEntityOrThrow(String id) {
+        return statusTypeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Status type not found with id: " + id));
     }
 }

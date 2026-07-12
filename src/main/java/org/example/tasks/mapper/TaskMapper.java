@@ -52,7 +52,7 @@ public class TaskMapper {
                 .build();
     }
 
-    // statusTypeId e optional -> daca lipseste, statusul ramane null pe task
+
     public StatusType resolveStatusType(String statusTypeId) {
         if (statusTypeId == null) {
             return null;
@@ -62,7 +62,7 @@ public class TaskMapper {
                         "Nu a fost gasit niciun status cu id-ul: " + statusTypeId));
     }
 
-    // userId e optional -> daca lipseste, task-ul ramane neasignat
+
     public User resolveUser(Long userId) {
         if (userId == null) {
             return null;

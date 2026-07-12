@@ -42,24 +42,29 @@ public class StatusTypeService {
         log.info("Creating status type {}", statusTypeCreateDTO);
         StatusType status = statusTypeMapper.toEntity(statusTypeCreateDTO);
 
+        //aici se vor seta createdBy si createdByFullName din token
+
         StatusType savedStatus = statusTypeRepository.save(status);
 
         return statusTypeMapper.toDTO(savedStatus);
 
     }
 
+    @Transactional
     public StatusTypeDTO updateStatusType(String statusTypeId, StatusTypeCreateDTO statusTypeCreateDTO) {
         StatusType existing = statusTypeRepository.findById(statusTypeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Nu a am gasit niciun status cu id-ul: " + statusTypeId));
 
         existing.setStatusName(statusTypeCreateDTO.getStatusName());
-
+        //se va seta lastUpdatedBy din token
 
         StatusType saved = statusTypeRepository.save(existing);
         return statusTypeMapper.toDTO(saved);
     }
 
+    // upsert- daca userId exista update, altfel creeaza unul nou
+    @Transactional
     public StatusTypeDTO updateOrCreateStatusType(String statusTypeId, StatusTypeCreateDTO statusTypeCreateDTO) {
         if (statusTypeRepository.existsById(statusTypeId)) {
             return updateStatusType(statusTypeId, statusTypeCreateDTO);
@@ -67,6 +72,14 @@ public class StatusTypeService {
         return createStatuses(statusTypeCreateDTO);
     }
 
+    public List<StatusTypeDTO> getStatusesByStatusNameAsc() {
+        return statusTypeRepository.findAllByOrderByStatusNameAsc()
+                .stream()
+                .map(statusTypeMapper::toDTO)
+                .toList();
+    }
+
+    @Transactional
     public void deleteStatusType(String statusTypeId) {
         if (!statusTypeRepository.existsById(statusTypeId)) {
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -75,4 +88,8 @@ public class StatusTypeService {
         statusTypeRepository.deleteById(statusTypeId);
     }
 
+
+    public boolean existsById(String statusTypeId) {
+        return statusTypeRepository.existsById(statusTypeId);
+    }
 }

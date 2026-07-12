@@ -47,14 +47,34 @@ public class UserController {
     public ResponseEntity<UserDTO> updateOrCreateUser(@PathVariable Long userId,
                                                       @Valid @RequestBody UserCreateDTO userCreateDTO) {
 
+        boolean exists = userService.existsById(userId);
         UserDTO result = userService.updateOrCreateUser(userId, userCreateDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        HttpStatus status = exists ? HttpStatus.OK : HttpStatus.CREATED;
+        return ResponseEntity.status(status).body(result);
     }
+
+    @GetMapping("/internal/{isInternal}")
+    public List<UserDTO> getUserInternal(@PathVariable Boolean isInternal) {
+        return  userService.getUsersByIsInternal(isInternal);
+    }
+
+    @GetMapping("/whit-tasks")
+    public List<UserDTO> getUserWithTasks() {
+        return userService.getUsersWhitTasks();
+    }
+
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @DeleteMapping("/{oldUserId}/reassign-to/{newUserId}")
+    public ResponseEntity<Void> reassignToUser(@PathVariable Long oldUserId, @PathVariable Long newUserId) {
+        userService.reassignAndDeleteUser(oldUserId, newUserId);
         return ResponseEntity.noContent().build();
     }
 }

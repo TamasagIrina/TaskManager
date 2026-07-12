@@ -8,6 +8,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -38,7 +40,6 @@ public class User {
     @Column(name = "CREATED_BY", nullable = false, updatable = false, length = 50)
     private String createdBy;
 
-
     @Column(name = "LAST_UPDATE_DATE", nullable = false)
     private LocalDateTime lastUpdateDate;
 
@@ -47,6 +48,10 @@ public class User {
 
     @Column(name = "CREATED_BY_FULLNAME", length = 300)
     private String createdByFullName;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Task> tasks = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -60,7 +65,7 @@ public class User {
             this.lastUpdatedBy = this.createdBy;
         }
         //cand adaugam audentificare cu Spring Security createdBy si createdByFullName se vor lua din token
-        //nu mi se pare corect sa le punem noi de mana, le las acum setate default
+        //nu mi se pare e ok sa le setam noi de mana, momentan sunt pe default
     }
 
     @PreUpdate

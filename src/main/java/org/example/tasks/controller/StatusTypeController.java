@@ -1,9 +1,12 @@
 package org.example.tasks.controller;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.StatusTypeCreateDTO;
 import org.example.tasks.dto.response.StatusTypeDTO;
 import org.example.tasks.service.StatusTypeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,12 +14,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/statuses")
+@RequiredArgsConstructor
 public class StatusTypeController {
-    private StatusTypeService statusTypeService;
 
-    public StatusTypeController(StatusTypeService statusTypeService) {
-        this.statusTypeService = statusTypeService;
-    }
+    private final StatusTypeService statusTypeService;
+
 
     @GetMapping
     public List<StatusTypeDTO> getAllStatuses() {
@@ -41,9 +43,19 @@ public class StatusTypeController {
     }
 
     @PutMapping("/{statusTypeId}/upsert")
-    public StatusTypeDTO upsertStatusType(@PathVariable String statusTypeId,
-                                          @Valid @RequestBody StatusTypeCreateDTO statusTypeCreateDTO) {
-        return statusTypeService.updateOrCreateStatusType(statusTypeId, statusTypeCreateDTO);
+    public ResponseEntity<StatusTypeDTO> upsertStatusType(@PathVariable String statusTypeId,
+                                                          @Valid @RequestBody StatusTypeCreateDTO statusTypeCreateDTO) {
+
+        boolean exists = statusTypeService.existsById(statusTypeId);
+        StatusTypeDTO result = statusTypeService.updateOrCreateStatusType(statusTypeId, statusTypeCreateDTO);
+
+        HttpStatus status = exists ? HttpStatus.OK : HttpStatus.CREATED;
+        return ResponseEntity.status(status).body(result);
+    }
+
+    @GetMapping("/asc")
+    public List<StatusTypeDTO> getStatusesByStatusNameAsc() {
+        return statusTypeService.getStatusesByStatusNameAsc();
     }
 
     @DeleteMapping("/{statusTypeId}")
