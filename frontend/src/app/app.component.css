@@ -1,0 +1,69 @@
+nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #1B1F2A;
+  border-bottom: 1px solid #2E3444;
+}
+
+nav a {
+  color: #9AA3B5;
+  text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px; /* Corectat aici: spațiere normală, flexbox face restul! */
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+nav a:hover {
+  color: #E4E7ED;
+  background-color: #262B38;
+}
+
+nav a.active,
+nav a:visited.active {
+  color: #FFFFFF;
+  background-color: #3D5AFE;
+}
+
+nav a:focus-visible {
+  outline: 2px solid #3D5AFE;
+  outline-offset: 2px;
+}
+
+/* Statusul utilizatorului împins în dreapta */
+nav p {
+  margin: 0;
+  margin-left: auto; 
+  color: #E4E7ED;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #262B38;
+  border: 1px solid #2E3444;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.username-highlight {
+  color: #3D5AFE;
+  margin-left: 6px;
+}
+
+@media (max-width: 480px) {
+  nav {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 16px;
+  }
+  nav p {
+    margin-left: 0; /* Pe ecrane mici se va alinia normal */
+    width: 100%;
+    justify-content: center;
+  }
+}

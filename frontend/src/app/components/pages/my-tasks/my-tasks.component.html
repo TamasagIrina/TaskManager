@@ -1,0 +1,31 @@
+@if (loading()) {
+<p>Se încarcă...</p>
+} @else if (error()) {
+<p>Eroare: {{ error() }}</p>
+} @else {
+<table>
+  <thead>
+    <tr>
+      <th>Due Date</th>
+      <th>Subject</th>
+      <th>Status</th>
+      <th>Assignee to</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (task of sortedTasks(); track task.taskId) {
+    <tr>
+      <td>{{ task.dueDate }}</td>
+      <td>{{ task.taskName }}</td>
+      <td>{{ task.statusName }}</td>
+      <td>{{ task.username }}</td>
+      <button (click)="openEditTaskModal(task)">Edit</button>
+    </tr>
+    } @empty {
+    <tr>
+      <td colspan="3">Nu ai niciun task momentan.</td>
+    </tr>
+    }
+  </tbody>
+</table>
+}

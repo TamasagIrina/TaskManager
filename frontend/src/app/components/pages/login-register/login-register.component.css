@@ -1,0 +1,155 @@
+/* Dacă vrei ca toată componenta Angular să ocupe ecranul și să aibă acel fundal semitransparent (ca un modal), folosim :host */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.143);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Containerul principal - stilizat exact ca .modal-content-ul tău */
+.auth-container {
+  background-color: #1E2330;
+  color: #E2E8F0;
+  padding: 28px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 450px;
+  border: 1px solid #2E3444;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+/* Titlul formularului */
+.form-wrapper h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+/* Zona de butoane pentru comutare (Login / Register) adaptată la dark mode */
+.toggle-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background-color: #0f111a; /* Un fundal puțin mai închis decât cardul pentru contrast */
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #2E3444;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.toggle-buttons button:hover {
+  color: #FFFFFF;
+}
+
+/* Starea activă a butonului de comutare */
+.toggle-buttons button.active {
+  background-color: #1E2330; /* Iese în evidență adoptând culoarea cardului */
+  color: #FFFFFF;
+  border: 1px solid #3B82F6; /* Un contur subtil albastru */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Câmpurile de input */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94A3B8;
+}
+
+.input-group input {
+  padding: 12px;
+  background-color: #0f111a;
+  color: #FFFFFF;
+  border: 1px solid #2E3444;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Placeholder mai subtil */
+.input-group input::placeholder {
+  color: #475569;
+}
+
+/* Efectul la selectarea unui input */
+.input-group input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+/* Butonul principal de acțiune (Login/Register) */
+.action-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background-color: #3B82F6; /* Albastru modern care se potrivește cu temele dark */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+  background-color: #2563EB;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+/* Mesajul de succes adaptat pentru dark theme */
+.success-message {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: rgba(16, 185, 129, 0.1); /* Fundal verde transparent */
+  color: #34D399; /* Text verde deschis */
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

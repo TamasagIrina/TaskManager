@@ -1,0 +1,9 @@
+<nav>
+    <a routerLink="/home">Home</a>
+    <a routerLink="/my-tasks">My Tasks</a>
+    <a routerLink="/search">Search</a>
+    <a routerLink="/new-task">New Task</a>
+    <a routerLink="/login-register">Login/Register</a>
+    <p *ngIf="userName">Logged in as: <span class="username-highlight">{{ userName }}</span></p>
+</nav>
+<router-outlet></router-outlet>
