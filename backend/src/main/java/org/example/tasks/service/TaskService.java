@@ -42,7 +42,7 @@ public class TaskService {
                 .toList();
     }
 
-    @Transactional
+
     public List<TaskDTO> addTask(TaskCreateDTO taskCreateDTO) {
         Task newTask = taskMapper.toEntity(taskCreateDTO);
 
@@ -90,7 +90,7 @@ public class TaskService {
         return taskMapper.toDTO(saved);
     }
 
-    @Transactional
+
     public void deleteTaskById(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

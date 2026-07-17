@@ -37,7 +37,7 @@ public class StatusTypeService {
                         "Nu a am gasit niciun status cu id-ul: " + statusTypeId));
     }
 
-    @Transactional
+   
     public StatusTypeDTO createStatuses(StatusTypeCreateDTO statusTypeCreateDTO) {
         log.info("Creating status type {}", statusTypeCreateDTO);
         StatusType status = statusTypeMapper.toEntity(statusTypeCreateDTO);

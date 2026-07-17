@@ -27,6 +27,12 @@ public class User {
     @Column(name = "USERNAME", nullable = false, length = 500)
     private String username;
 
+    @Column(name = "EMAIL", nullable = false, length = 255, unique = true)
+    private String email;
+
+    @Column(name = "PASSWORD", nullable = false, length = 255)
+    private String password;
+
     @Column(name = "BIRTH_DATE", nullable = false)
     private LocalDate birthDate;
 
@@ -49,12 +55,10 @@ public class User {
     @Column(name = "CREATED_BY_FULLNAME", length = 300)
     private String createdByFullName;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Task> tasks = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
+        this.isInternal = false;
         LocalDateTime now = LocalDateTime.now();
         this.creationDate = now;
         this.lastUpdateDate = now;

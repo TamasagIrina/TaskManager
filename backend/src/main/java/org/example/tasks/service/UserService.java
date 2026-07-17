@@ -5,7 +5,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tasks.dto.request.AuthRequest;
 import org.example.tasks.dto.request.UserCreateDTO;
+import org.example.tasks.dto.response.AuthResponse;
 import org.example.tasks.dto.response.UserDTO;
 import org.example.tasks.mapper.UserMapper;
 import org.example.tasks.model.Task;
@@ -42,7 +44,23 @@ public class UserService {
                         "Nu a fost gasit niciun user cu id-ul: " + userId));
     }
 
-    @Transactional
+    public AuthResponse logUser(AuthRequest authRequest) {
+        User user= userRepository.findByEmail(authRequest.getEmail());
+        log.info("User logged in: " + user);
+        AuthResponse authResponse = new AuthResponse();
+
+        if(user!=null && authRequest.getPassword()!=null && user.getPassword().equals(authRequest.getPassword())) {
+          authResponse.setUser(userMapper.toDTO(user));
+          authResponse.setMessage("Logged in");
+        }else {
+            authResponse.setMessage("Password or email doesn't match");
+            authResponse.setUser(null);
+        }
+
+        return authResponse;
+    }
+
+
     public UserDTO createUser(UserCreateDTO userCreateDTO) {
         log.info("Creating user {}", userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
@@ -59,9 +77,11 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Nu a fost gasit niciun user cu id-ul: " + userId));
 
+
         existingUser.setUsername(userCreateDTO.getUsername());
+        existingUser.setEmail(userCreateDTO.getEmail());
+        existingUser.setPassword(userCreateDTO.getPassword());
         existingUser.setBirthDate(userCreateDTO.getBirthDate());
-        existingUser.setIsInternal(userCreateDTO.getIsInternal());
 
         //se va seta lastUpdatedBy din token
 
@@ -86,14 +106,7 @@ public class UserService {
                 .toList();
     }
 
-    public List<UserDTO> getUsersWhitTasks() {
-        return userRepository.findUsersWithTasks()
-                .stream()
-                .map(userMapper::toDTO)
-                .toList();
-    }
 
-    @Transactional
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

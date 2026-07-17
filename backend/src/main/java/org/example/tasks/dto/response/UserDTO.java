@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class UserDTO {
     private Long userId;
     private String username;
+    private String email;
     private LocalDate birthDate;
     private Boolean isInternal;
     private String createdBy;

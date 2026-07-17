@@ -18,10 +18,16 @@ public class UserCreateDTO {
     @Size(max = 500)
     private String username;
 
+    @NotBlank()
+    @Size(max = 255)
+    private String email;
+
+    @NotBlank()
+    @Size(max = 255)
+    private String password;
+
     @NotNull()
     @Past()
     private LocalDate birthDate;
 
-    @NotNull()
-    private Boolean isInternal;
 }

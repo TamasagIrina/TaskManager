@@ -3,7 +3,9 @@ package org.example.tasks.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.tasks.dto.request.AuthRequest;
 import org.example.tasks.dto.request.UserCreateDTO;
+import org.example.tasks.dto.response.AuthResponse;
 import org.example.tasks.dto.response.UserDTO;
 import org.example.tasks.model.User;
 import org.example.tasks.service.UserService;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@CrossOrigin
 public class UserController {
     private final UserService userService;
 
@@ -30,10 +33,15 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
         UserDTO created = userService.createUser(userCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody AuthRequest authRequest) {
+        return userService.logUser(authRequest);
     }
 
     @PutMapping("/{userId}")
@@ -59,10 +67,7 @@ public class UserController {
         return  userService.getUsersByIsInternal(isInternal);
     }
 
-    @GetMapping("/whit-tasks")
-    public List<UserDTO> getUserWithTasks() {
-        return userService.getUsersWhitTasks();
-    }
+
 
 
     @DeleteMapping("/{userId}")
