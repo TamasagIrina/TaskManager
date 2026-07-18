@@ -1,0 +1,149 @@
+/* Reset și fundal pentru pagină */
+.page-container {
+  padding: 32px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+}
+
+.greeting-section h1 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1a1d27;
+  font-size: 28px; 
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.greeting-section p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #6b7280; 
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Secțiunea de text (Hello) */
+.greeting-section {
+  margin-bottom: 40px;
+}
+
+
+.stats-container {
+  display: flex;
+  justify-content: center; /* Centrează inelele pe orizontală */
+  gap: 80px; /* Spațiu mai mare între inele pentru a nu fi înghesuite */
+  flex-wrap: wrap;
+  margin-top: 40px; /* Spațiu față de textul de sus */
+}
+
+/* Mărirea inelelor */
+.ring-wrapper {
+  position: relative;
+  width: 150px; /* Mărit de la 90px */
+  height: 150px; /* Mărit de la 90px */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Grosimea inelului ajustată pentru noua dimensiune */
+.ring-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 14px; /* Am mărit de la 8px ca inelul să fie proporțional mai gros */
+  background-color: #ffffff;
+  border-radius: 50%;
+}
+
+/* Textul din interior mai mare */
+.count-text {
+  position: relative;
+  font-size: 40px; /* Mărit de la 22px */
+  font-weight: 700;
+  z-index: 1;
+}
+
+/* Eticheta de sub inel */
+.stat-label {
+  font-size: 16px; /* Mărit ușor textul */
+  font-weight: 500;
+  color: #6b7280;
+  margin-top: 8px; /* Un pic de spațiu între inel și text */
+}
+
+/* --- CULORI ȘI GRADIENTI SPECIFICI --- */
+
+/* Inel Albastru (Pending) - umplere dinamică prin variabila --p */
+.blue-ring { 
+  background: conic-gradient(#5a67d8 var(--p, 0%), #f3f4f6 0); 
+}
+.blue-text { 
+  color: #5a67d8; 
+}
+
+/* Inel Verde (In Progress) */
+.green-ring { 
+  background: conic-gradient(#48bb78 var(--p, 0%), #f3f4f6 0); 
+}
+.green-text { 
+  color: #48bb78; 
+}
+
+/* Inel Roșu (Completed) */
+.red-ring { 
+  background: conic-gradient(#f56565 var(--p, 0%), #f3f4f6 0); 
+}
+.red-text { 
+  color: #f56565; 
+}
+.red-text { 
+  color: #f56565; 
+}
+
+.loading-text {
+  color: #6b7280;
+}
+
+.dashboard-lists-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 32px;
+  margin-top: 60px; /* Separă vizual inelele de liste */
+  border-top: 1px solid #e5e7eb; /* O linie subtilă de separare */
+  padding-top: 32px;
+}
+
+.list-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.column-header h2 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1d27;
+  margin: 0;
+}
+
+.overdue-column .column-header h2 {
+  color: #ef4444; /* Roșu pentru a atrage atenția */
+}
+
+.cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty-state-text {
+  color: #6b7280;
+  font-size: 14px;
+  font-style: italic;
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px dashed #d1d5db;
+  text-align: center;
+}

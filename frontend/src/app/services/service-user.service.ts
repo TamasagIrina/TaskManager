@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { UserDTOResponse } from '../interfaces/UserDTOResponse';
-import { UserDTOCreate } from '../interfaces/UserDTOCreate';
-import { AuthRequestDTO } from '../interfaces/AuthRequestDTO';
+import { UserDTOResponse } from '../domains/UserDTOResponse';
+import { UserDTOCreate } from '../domains/UserDTOCreate';
+import { AuthRequestDTO } from '../domains/AuthRequestDTO';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServiceUserService {
+  
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/users';
 

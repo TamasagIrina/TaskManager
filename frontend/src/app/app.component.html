@@ -3,7 +3,11 @@
     <a routerLink="/my-tasks">My Tasks</a>
     <a routerLink="/search">Search</a>
     <a routerLink="/new-task">New Task</a>
+    @if (userName()) {
+    <p>Logged in as: <span class="username-highlight">{{ userName() }}</span></p>
+    <button type="button" class="btn-logout" (click)="onLogout()">Logout</button>
+    } @else {
     <a routerLink="/login-register">Login/Register</a>
-    <p *ngIf="userName">Logged in as: <span class="username-highlight">{{ userName }}</span></p>
+    }
 </nav>
 <router-outlet></router-outlet>

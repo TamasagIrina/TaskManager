@@ -1,16 +1,18 @@
 import { Component, inject, Input, input, output, signal } from '@angular/core';
-import { TaskDTOResponse } from '../../../interfaces/TaskDTOResponse';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TaskDTOResponse } from '../../../domains/TaskDTOResponse';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ServiceTasksService } from '../../../services/service-tasks.service';
 import { ServiceUserService } from '../../../services/service-user.service';
 import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
-import { UserDTOResponse } from '../../../interfaces/UserDTOResponse';
-import { StatusTypeDTO } from '../../../interfaces/StatusTypeDTO';
-import { TaskCreateDTO } from '../../../interfaces/TaskDTOCreate';
+import { UserDTOResponse } from '../../../domains/UserDTOResponse';
+import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
+import { TaskCreateDTO } from '../../../domains/TaskDTOCreate';
+import { LoadingComponent } from "../loading/loading.component";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-edit-task',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, LoadingComponent],
   templateUrl: './add-edit-task.component.html',
   styleUrl: './add-edit-task.component.css'
 })
@@ -19,6 +21,8 @@ export class AddEditTaskComponent {
   @Input() id: number | null = null;
 
   taskToEdit = signal<TaskDTOResponse | null>(null);
+
+  router = inject(Router);
 
 
   private fb = inject(FormBuilder);
@@ -38,8 +42,8 @@ export class AddEditTaskComponent {
   taskForm = this.fb.nonNullable.group({
     taskName: ['', [Validators.required, Validators.maxLength(500)]],
     statusTypeId: ['', [Validators.required, Validators.maxLength(255)]],
-    userId: [0, [Validators.required, Validators.min(1)]],
-    dueDate: ['', Validators.required]
+    userId: [0, Validators.required],
+    dueDate: ['', [Validators.required, futureDateValidator()]]
   });
 
   ngOnInit() {
@@ -84,7 +88,7 @@ export class AddEditTaskComponent {
         next: () => {
           console.log('Task actualizat cu succes!');
           alert('Task actualizat cu succes!');
-          this.taskForm.reset();  
+          this.taskForm.reset();
 
         },
         error: (err) => {
@@ -141,4 +145,22 @@ export class AddEditTaskComponent {
     });
   }
 
+  onCancel() {
+    this.router.navigate(["/my-tasks"]);
+  }
+
+}
+
+
+
+
+export function futureDateValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+    const inputDate = new Date(control.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (inputDate.getTime() < today.getTime()) return { futureDate: true };
+    return null;
+  };
 }

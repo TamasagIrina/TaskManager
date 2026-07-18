@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { AuthResponseDTO } from '../../../interfaces/AuthResponseDTO';
+import { AuthResponseDTO } from '../../../domains/AuthResponseDTO';
 import { ServiceUserService } from '../../../services/service-user.service';
-import { UserDTOCreate } from '../../../interfaces/UserDTOCreate';
-import { AuthRequestDTO } from '../../../interfaces/AuthRequestDTO';
+import { UserDTOCreate } from '../../../domains/UserDTOCreate';
+import { AuthRequestDTO } from '../../../domains/AuthRequestDTO';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -16,6 +16,8 @@ export class LoginRegisterComponent {
 
   serviceUser = inject(ServiceUserService);
 
+  
+
   logOrReg: boolean = true;
 
   router= inject(Router);
@@ -28,6 +30,7 @@ export class LoginRegisterComponent {
         console.log('Login successful:', response);
 
         localStorage.setItem('user', JSON.stringify(response.user));
+
     
         this.router.navigate(['/home']);
       },

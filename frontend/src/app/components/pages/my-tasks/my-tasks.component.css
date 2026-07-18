@@ -1,29 +1,78 @@
-table {
-  width: 100%;
-  border-collapse: collapse;
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 26px;
+}
+
+.page-header h1 {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
+  color: #1a1d27;
+  font-size: 28px; 
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
 }
 
-th, td {
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid #2E3444;
+.page-header p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #6b7280; 
+  font-size: 15px;
+  margin: 0;
 }
 
-th {
-  color: #9AA3B5;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.03em;
+.filter-tabs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
 }
 
-button {
-  background-color: #2E3444;
-  color: white;
+.filter-chip {
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 20px; 
   padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  border-color: #9aa3b5;
+  color: #1a1d27;
+  background-color: #f9fafb;
+}
+
+.filter-chip.active {
+  background-color: #1a1d27;
+  color: #ffffff;
+  border-color: #1a1d27;
+}
+
+.tasks-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 0;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+.state-container p {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0;
+}
+
+.error-text {
+  color: #ef4444 !important;
 }

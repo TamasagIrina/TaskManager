@@ -13,20 +13,20 @@
   letter-spacing: 0.03em;
 }
 
-.form-group input, 
+.form-group input,
 .form-group select {
   padding: 10px 14px;
-  background-color: #151822;
-  border: 1px solid #2E3444;
+  background-color: #e7e9f1;
+  border: 1px solid #93969f;
   border-radius: 6px;
-  color: #FFFFFF;
+  color: #070707;
   font-size: 14px;
   font-family: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  appearance: auto; 
+  appearance: auto;
 }
 
-.form-group input:focus, 
+.form-group input:focus,
 .form-group select:focus {
   outline: none;
   border-color: #5C7CFA;
@@ -36,7 +36,7 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 24px;
   margin-top: 32px;
 }
 
@@ -60,4 +60,26 @@
   background-color: #2E3444;
   color: #7A8499;
   cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  color: #9AA3B5;
+  border: 1px solid #93969f;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: #5C7CFA;
+  color: #FFFFFF;
+}
+
+.btn-cancel:active {
+  background-color: rgba(255, 255, 255, 0.08);
 }

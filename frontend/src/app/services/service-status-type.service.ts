@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { StatusTypeDTO } from '../interfaces/StatusTypeDTO';
+import { StatusTypeDTO } from '../domains/StatusTypeDTO';
 
 @Injectable({
   providedIn: 'root'

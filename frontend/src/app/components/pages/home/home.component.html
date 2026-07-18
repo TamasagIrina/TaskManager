@@ -1,1 +1,81 @@
-<p>home works!</p>
+<div class="page-container">
+    <!-- Secțiunea de Greeting -->
+    <div class="greeting-section">
+        <h1>Hello, <strong>{{ userName}}</strong> ! </h1>
+        <p>Here is the overview of your tasks.</p>
+    </div>
+
+    @if (loading()) {
+    <app-loading message="Loading dashboard..." variant="overlay"></app-loading>
+    } @else {
+
+    <div class="stats-container">
+
+    
+        <div class="stat-item">
+            
+            <div class="ring-wrapper blue-ring" [style.--p]="pendingPercent() + '%'">
+                <span class="count-text blue-text">{{ pendingCount() }}</span>
+            </div>
+            <span class="stat-label">Pending tasks</span>
+        </div>
+
+     
+        <div class="stat-item">
+            <div class="ring-wrapper green-ring" [style.--p]="inProgressPercent() + '%'">
+                <span class="count-text green-text">{{ inProgressCount() }}</span>
+            </div>
+            <span class="stat-label">In Progress tasks</span>
+        </div>
+
+    
+        <div class="stat-item">
+            <div class="ring-wrapper red-ring" [style.--p]="completedPercent() + '%'">
+                <span class="count-text red-text">{{ completedCount() }}</span>
+            </div>
+            <span class="stat-label">Completed tasks</span>
+        </div>
+
+    </div>
+    }
+
+    <div class="dashboard-lists-section">
+    
+    <div class="list-column overdue-column">
+      <div class="column-header">
+        <h2>⚠️ Overdue Tasks</h2>
+      </div>
+      
+      @if (loadingOverdue()) {
+         <app-loading message="Loading overdue tasks..." variant="inline"></app-loading>
+      } @else {
+        <div class="cards-wrapper">
+          @for (task of overdueTasks(); track task.taskId) {
+            <app-task-card [task]="task"></app-task-card>
+          } @empty {
+            <p class="empty-state-text">Great job! No overdue tasks.</p>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="list-column upcoming-column">
+      <div class="column-header">
+        <h2>📅 Upcoming (Next 7 Days)</h2>
+      </div>
+      
+      @if (loadingUpcoming()) {
+        <app-loading message="Loading upcoming tasks..." variant="inline"></app-loading>
+      } @else {
+        <div class="cards-wrapper">
+          @for (task of upcomingTasks(); track task.taskId) {
+            <app-task-card [task]="task"></app-task-card>
+          } @empty {
+            <p class="empty-state-text">No tasks due in the next 7 days.</p>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
