@@ -96,6 +96,7 @@ public class TaskService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Task not found with id: " + id);
         }
+        log.info("Deleted Task: {} ", taskRepository.findById(id));
         taskRepository.deleteById(id);
     }
 
@@ -202,11 +203,11 @@ public class TaskService {
     }
 
     // numara task-urile in functie de status sau returneaza numarul tuturor task-urile
-    public long countTasks(String statusTypeId) {
-        if (statusTypeId == null) {
+    public long countTasks(String statusName) {
+        if (statusName == null) {
             return taskRepository.count();
         }
-        return taskRepository.countByStatusType_StatusTypeId(statusTypeId);
+        return taskRepository.countByStatusType_StatusName(statusName);
     }
 
     // returneaza task-urile care au depasit data limita

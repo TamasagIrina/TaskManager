@@ -98,8 +98,8 @@ public class TaskController {
     }
 
     @GetMapping("/count")
-    public long countTasks(@RequestParam(required = false) String statusTypeId) {
-        return taskService.countTasks(statusTypeId);
+    public long countTasks(@RequestParam(required = false) String statusName) {
+        return taskService.countTasks(statusName);
     }
 
     @GetMapping("/overdue")

@@ -15,6 +15,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     long countByStatusType_StatusTypeId(String statusTypeId);
 
+    long countByStatusType_StatusName(String statusName);
+
     List<Task> findByUser_UserId(Long oldUserId);
 
     @Query("SELECT t FROM Task t WHERE t.dueDate BETWEEN :startDate AND :endDate")
