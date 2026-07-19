@@ -18,11 +18,11 @@ import { Router } from '@angular/router';
 })
 export class AddEditTaskComponent {
 
-  @Input() id: number | null = null;
-
   taskToEdit = signal<TaskDTOResponse | null>(null);
 
   router = inject(Router);
+
+  id = this.router.getCurrentNavigation()?.extras.state?.['id'];
 
 
   private fb = inject(FormBuilder);
@@ -51,8 +51,8 @@ export class AddEditTaskComponent {
     this.loadStatusTypes();
     this.getTaskToEdit();
 
-
   }
+
   getTaskToEdit() {
 
     if (this.id !== null) {
@@ -88,7 +88,9 @@ export class AddEditTaskComponent {
         next: () => {
           console.log('Task actualizat cu succes!');
           alert('Task actualizat cu succes!');
-          this.taskForm.reset();
+          
+          this.router.navigate(["/my-tasks"]);
+
 
         },
         error: (err) => {

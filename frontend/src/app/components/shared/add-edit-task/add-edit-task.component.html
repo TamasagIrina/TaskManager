@@ -1,69 +1,80 @@
-<form [formGroup]="taskForm" (ngSubmit)="onSubmitTaskForm()">
-
-    <div class="form-group">
-        <label>Task Name:</label>
-        <input type="text" formControlName="taskName" placeholder="e.g. Implement feature X">
-    </div>
-
-    <div class="form-group">
-        <label>Status:</label>
-        <select formControlName="statusTypeId">
-            @if (isLoadingStatusTypes()) {
-            <option value="" disabled selected>
-                <app-loading message="Loading status types..." variant="inline"></app-loading>
-            </option>
-            } @else if (errorStatusTypes()) {
-            <option value="" disabled selected>{{ errorStatusTypes() }}</option>
-            } @else {
-            <option value="" disabled selected>Choose a status...</option>
-            @for (status of statusTypes(); track status.statusTypeId) {
-            <option [value]="status.statusTypeId">{{ status.statusName }}</option>
-            }
-            }
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Assigned to:</label>
-        <select formControlName="userId">
-            @if (isLoadingUsers()) {
-            <option [ngValue]="0" disabled selected>
-                <app-loading message="Loading users..." variant="inline"></app-loading>
-            </option>
-            } @else if (errorUsers()) {
-            <option [ngValue]="0" disabled selected>{{ errorUsers() }}</option>
-            } @else {
-            <option [ngValue]="0" disabled selected>Choose a user...</option>
-            @for (user of users(); track user.userId) {
-            <option [value]="user.userId">{{user.userId}} - {{user.username}}</option>
-            }
-            }
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Due Date:</label>
-        <input type="date" formControlName="dueDate">
-        @if (taskForm.get('dueDate')?.hasError('futureDate')) {
-        <p class="error-text">Due date must be in the future.</p>
-        }
-    </div>
-
-    <div class="form-actions">
+<div class="modal-overlay">
+    <div class="modal-content">
 
         @if (taskToEdit()) {
-        <button class="btn-cancel" (click)="onCancel()">
-            Cancel
-        </button>
+        <h2>Edit Task</h2>
+        }@else{
+        <h2>Update Tash</h2>
         }
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmitTaskForm()">
 
-        <button type="submit" class="btn-submit" [disabled]="taskForm.invalid">
-            @if (taskToEdit()) {
-            Update
-            } @else {
-            Save
-            }
-        </button>
+            <div class="form-group">
+                <label>Task Name:</label>
+                <input type="text" formControlName="taskName" placeholder="e.g. Implement feature X">
+            </div>
+
+            <div class="form-group">
+                <label>Status:</label>
+                <select formControlName="statusTypeId">
+                    @if (isLoadingStatusTypes()) {
+                    <option value="" disabled selected>
+                        <app-loading message="Loading status types..." variant="inline"></app-loading>
+                    </option>
+                    } @else if (errorStatusTypes()) {
+                    <option value="" disabled selected>{{ errorStatusTypes() }}</option>
+                    } @else {
+                    <option value="" disabled selected>Choose a status...</option>
+                    @for (status of statusTypes(); track status.statusTypeId) {
+                    <option [value]="status.statusTypeId">{{ status.statusName }}</option>
+                    }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Assigned to:</label>
+                <select formControlName="userId">
+                    @if (isLoadingUsers()) {
+                    <option [ngValue]="0" disabled selected>
+                        <app-loading message="Loading users..." variant="inline"></app-loading>
+                    </option>
+                    } @else if (errorUsers()) {
+                    <option [ngValue]="0" disabled selected>{{ errorUsers() }}</option>
+                    } @else {
+                    <option [ngValue]="0" disabled selected>Choose a user...</option>
+                    @for (user of users(); track user.userId) {
+                    <option [value]="user.userId">{{user.userId}} - {{user.username}}</option>
+                    }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Due Date:</label>
+                <input type="date" formControlName="dueDate">
+                @if (taskForm.get('dueDate')?.hasError('futureDate')) {
+                <p class="error-text">Due date must be in the future.</p>
+                }
+            </div>
+
+            <div class="form-actions">
+
+                @if (taskToEdit()) {
+                <button class="btn-cancel" (click)="onCancel()">
+                    Cancel
+                </button>
+                }
+
+                <button type="submit" class="btn-submit" [disabled]="taskForm.invalid">
+                    @if (taskToEdit()) {
+                    Update
+                    } @else {
+                    Save
+                    }
+                </button>
+            </div>
+
+        </form>
+
     </div>
-
-</form>
+</div>
