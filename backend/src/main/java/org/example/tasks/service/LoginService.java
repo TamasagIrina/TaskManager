@@ -18,14 +18,11 @@ import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
-public class LoginRegisterService {
+public class LoginService {
     private final UserRepository userRepository;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private final JwtService jwtService;
 
-    @Value("${jwt.expiration.ms}")
-    private String jwtExpiration;
 
     public String login(AuthRequest authRequest) throws JoseException {
         authRequest.setEmail(new String(Base64.getDecoder().decode(authRequest.getEmail())));
@@ -36,25 +33,12 @@ public class LoginRegisterService {
         User dbPassword= userRepository.findByEmail(authRequest.getEmail());
 
         if(hashPassword.equals(dbPassword.getPassword())){
-            return createToken(dbPassword.getEmail());
+            return jwtService.createToken(authRequest.getEmail());
         }else {
             return "401: Unauthorized";
         }
 
-
     }
 
-    private String createToken(String email) throws JoseException  {
-        JwtClaims claims = new JwtClaims();
-        claims.setIssuedAtToNow();
-        claims.setExpirationTimeMinutesInTheFuture((float) Long.parseLong(jwtExpiration)/ (1000*60) );
-        claims.setClaim("email", email);
-        JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(claims.toJson());
-        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
-        jws.setKey(new AesKey(jwtSecret.getBytes(StandardCharsets.UTF_8)));
-
-       return jws.getCompactSerialization();
-    }
 
 }
