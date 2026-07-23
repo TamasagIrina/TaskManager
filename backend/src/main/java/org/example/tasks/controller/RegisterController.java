@@ -17,25 +17,8 @@ public class RegisterController {
 
     private final RegisterService registerService;
 
-    @PostMapping
-    public ResponseEntity<String> registerUser(@RequestBody UserCreateDTO user) throws JoseException {
-
-        String response= registerService.register(user);
-
-        if (response == null || response.isBlank()) {
-            return new ResponseEntity<>("500: Empty response",HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        if (response.startsWith("409:")) {
-            return new ResponseEntity<>(response,HttpStatus.CONFLICT);
-        }
-
-        if (response.startsWith("500:")) {
-            return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
-
-        }
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
+    @PostMapping()
+    public ResponseEntity<String> register(@RequestBody UserCreateDTO userCreateDTO) throws JoseException {
+        return registerService.register(userCreateDTO);
     }
 }

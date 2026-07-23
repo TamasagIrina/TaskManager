@@ -7,6 +7,8 @@ import org.example.tasks.mapper.UserMapper;
 import org.example.tasks.model.User;
 import org.example.tasks.repository.UserRepository;
 import org.jose4j.lang.JoseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -21,13 +23,18 @@ public class RegisterService {
 
     private final UserMapper userMapper;
 
-    public String register(UserCreateDTO userCreateDTO) throws JoseException {
+    public ResponseEntity<String> register(UserCreateDTO userCreateDTO) throws JoseException {
         String email = new String(Base64.getDecoder().decode(userCreateDTO.getEmail()));
         String password = new String(Base64.getDecoder().decode(userCreateDTO.getPassword()));
 
+        if (email.isEmpty() || password.isEmpty()) {
+            return new ResponseEntity<>("403: Empty response", HttpStatus.FORBIDDEN);
+        }
+
         User existingUser = userRepository.findByEmail(email);
+
         if (existingUser != null) {
-            return "409: Email already in use";
+            return new ResponseEntity<>("403: Email already in use", HttpStatus.FORBIDDEN);
         }
 
         String hashPassword = Credential.MD5.digest(password).replaceFirst("MD5:", "").toLowerCase();
@@ -40,14 +47,20 @@ public class RegisterService {
         try {
             savedUser = userRepository.save(newUser);
         } catch (Exception e) {
-            return "500: Failed to save user";
+            return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (savedUser.getUserId() == null || savedUser.getUserId() == 0) {
-            return "500: Failed to save user";
+            return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return jwtService.createToken(email);
+        String token = jwtService.createToken(email);
+
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>("500: Empty response", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
 

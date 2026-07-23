@@ -17,13 +17,6 @@ public class LoginController {
 
     @PostMapping()
     public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) throws JoseException {
-        String response= loginService.login(authRequest);
-        if(response.equals("401: Unauthorized")) {
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        }
-        if (response.isBlank()) {
-            return new ResponseEntity<>("500: Empty response",HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return loginService.login(authRequest);
     }
 }
