@@ -93,7 +93,7 @@ export class ServiceTasksService {
   }
 
   updateDueDateTime(taskId: number, dueDateTime: string) {
-    const url = `${this.apiUrl}${taskId}/dueDateTime`;
+    const url = `${this.apiUrl}${taskId}/due-date-time`;
 
     let params = new HttpParams();
     if (dueDateTime) {

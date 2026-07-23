@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, Signal } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import LocalStorageUtils from './utils/localStorageUtils';
 
 
 @Component({
@@ -11,7 +12,6 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'TasksFrontEndApp';
-  // userName: string | null = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') || '').username : null;
   userName = signal<string>("");
 
   router = inject(Router);
@@ -25,7 +25,7 @@ export class AppComponent {
   }
 
   onLogout(): void {
-    localStorage.removeItem("user");
+    LocalStorageUtils.deleteItem(LocalStorageUtils.tokenKey);
     this.userName.set("");
     this.router.navigate(['/login-register']);
   }

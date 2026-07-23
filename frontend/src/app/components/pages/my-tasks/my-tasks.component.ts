@@ -62,11 +62,10 @@ export class MyTasksComponent implements OnInit {
         // setTimeout(() => {
         //   this.tasks.set(data);
         //   this.loading.set(false);
-        //   console.log('Tasks for status', this.activeStatus || 'All', ':', this.tasks());
         // }, 200);
         this.tasks.set(data);
         this.loading.set(false);
-        console.log('Tasks for status', this.activeStatus || 'All', ':', this.tasks());
+  
       },
       error: (err) => {
         this.error.set(err.message);
@@ -101,7 +100,6 @@ export class MyTasksComponent implements OnInit {
     this.serviceStatuses.getStatusTypes().subscribe({
       next: (data) => {
         this.availableStatuses.set(data);
-        console.log('Statuses:', this.availableStatuses());
       },
       error: (err) => {
         this.error.set(err.message);

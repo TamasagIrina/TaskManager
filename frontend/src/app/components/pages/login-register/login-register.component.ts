@@ -5,6 +5,8 @@ import { UserDTOCreate } from '../../../domains/UserDTOCreate';
 import { AuthRequestDTO } from '../../../domains/AuthRequestDTO';
 import { Router, RouterLink } from '@angular/router';
 import { AppComponent } from '../../../app.component';
+import { LoginService } from '../../../services/login.service';
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-login-register',
@@ -17,21 +19,33 @@ export class LoginRegisterComponent {
 
   serviceUser = inject(ServiceUserService);
 
-  appCompinent = inject(AppComponent)
+  serviceLogin= inject(LoginService);
+
+  appComponent = inject(AppComponent);
 
   logOrReg: boolean = true;
 
   router = inject(Router);
 
   login(email: string, password: string) {
-    const authRequest: AuthRequestDTO = { email, password };
-    this.serviceUser.login(authRequest).subscribe({
+    const encodedUserDTO: AuthRequestDTO = {
+      email: btoa(email),
+      password: btoa(password)
+    };
+    this.serviceLogin.postLogin(encodedUserDTO).subscribe({
       next: (response: any) => {
         this.authResponse.set(response);
+
         console.log('Login successful:', response);
 
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.appCompinent.setUsername();
+        if(response.startsWith("403:")){
+          console.error("Incorect email or password");
+          return;
+        }
+
+        LocalStorageUtils.setItem(LocalStorageUtils.tokenKey, response);
+
+        this.appComponent.setUsername();
 
         this.router.navigate(['/home']);
       },
@@ -52,7 +66,7 @@ export class LoginRegisterComponent {
 
         localStorage.setItem('user', JSON.stringify(response));
         
-        this.appCompinent.setUsername();
+        this.appComponent.setUsername();
 
         this.router.navigate(['/home']);
       },

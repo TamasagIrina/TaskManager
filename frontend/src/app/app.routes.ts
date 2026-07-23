@@ -5,6 +5,7 @@ import { SearchComponent } from './components/pages/search/search.component';
 import { LoginRegisterComponent } from './components/pages/login-register/login-register.component';
 import { logginGuardServiceGuard } from './services/loggin-guard-service.guard';
 import { AddEditTaskComponent } from './components/shared/add-edit-task/add-edit-task.component';
+import { guestOnlyGuard } from './services/guest-only.guard';
 
 export const routes: Routes = [
     {path: 'home',component: HomeComponent, canActivate: [logginGuardServiceGuard]},
@@ -12,7 +13,7 @@ export const routes: Routes = [
     {path: 'search',component: SearchComponent, canActivate: [logginGuardServiceGuard]},
     {path: 'new-task',component: AddEditTaskComponent, canActivate: [logginGuardServiceGuard]},
     {path: 'edit-task/:id',component: AddEditTaskComponent, canActivate: [logginGuardServiceGuard]},
-    {path: 'login-register',component: LoginRegisterComponent},
+    {path: 'login-register',component: LoginRegisterComponent, canActivate:[guestOnlyGuard]},
     
     { path: '**', redirectTo: 'home' }
 

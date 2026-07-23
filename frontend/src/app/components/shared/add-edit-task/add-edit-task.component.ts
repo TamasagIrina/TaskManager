@@ -50,17 +50,14 @@ export class AddEditTaskComponent {
     this.loadUsers();
     this.loadStatusTypes();
     this.getTaskToEdit();
-
   }
 
   getTaskToEdit() {
 
-    if (this.id !== null) {
+    if (this.id!==undefined) {
       this.serviceTask.getTaskById(this.id).subscribe({
         next: (data) => {
           this.taskToEdit.set(data);
-
-          console.log('Task to edit:', this.taskToEdit());
 
           this.taskForm.patchValue({
             taskName: data.taskName,
