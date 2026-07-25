@@ -105,6 +105,66 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
+.input-group input[type="date"] {
+  color-scheme: dark;
+}
+
+
+.password-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.password-field input {
+  width: 100%;
+  padding: 12px;
+  padding-right: 44px; /* loc pentru buton */
+  background-color: #0f111a;
+  color: #FFFFFF;
+  border: 1px solid #2E3444;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.password-field input::placeholder {
+  color: #475569;
+}
+
+.password-field input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8; /* aceeași culoare ca label-urile */
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #FFFFFF;
+}
+
+.toggle-password .material-icons {
+  font-size: 20px;
+}
+
+
 /* Butonul principal de acțiune (Login/Register) */
 .action-btn {
   width: 100%;
@@ -129,13 +189,12 @@
   transform: scale(0.98);
 }
 
-/* Mesajul de succes adaptat pentru dark theme */
-.success-message {
+.error-message {
   margin-top: 16px;
   padding: 12px;
-  background-color: rgba(16, 185, 129, 0.1); /* Fundal verde transparent */
-  color: #34D399; /* Text verde deschis */
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 6px;
   text-align: center;
   font-size: 14px;
@@ -143,6 +202,11 @@
   animation: slideDown 0.3s ease-out forwards;
 }
 
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 @keyframes slideDown {
   from {
     opacity: 0;

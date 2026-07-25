@@ -12,21 +12,21 @@ import LocalStorageUtils from './utils/localStorageUtils';
 })
 export class AppComponent {
   title = 'TasksFrontEndApp';
-  userName = signal<string>("");
+  email = signal<string>("");
 
   router = inject(Router);
 
   ngOnInit() {
-    this.setUsername();
+    this.setEmail();
   }
 
-  setUsername() {
-    this.userName.set(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') || '').username : null);
+  setEmail() {
+    this.email.set(LocalStorageUtils.getEmailFromToken()!);
   }
 
   onLogout(): void {
     LocalStorageUtils.deleteItem(LocalStorageUtils.tokenKey);
-    this.userName.set("");
+    this.email.set("");
     this.router.navigate(['/login-register']);
   }
 }

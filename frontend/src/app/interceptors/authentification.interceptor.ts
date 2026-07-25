@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from "@angular/common/http";
 import LocalStorageUtils from "../utils/localStorageUtils";
 
 export const audentificationInterceptor: HttpInterceptorFn = (req, next) => {
-    if (req.url.includes('login-register')) {
+    if (req.url.includes('login')|| req.url.includes('register')) {
         return next(req);
     }
 

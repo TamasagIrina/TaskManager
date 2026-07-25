@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { TaskDTOResponse } from '../../../domains/TaskDTOResponse';
 import { TaskCardComponent } from "../../shared/task-card/task-card.component";
 import { LoadingComponent } from "../../shared/loading/loading.component";
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +13,7 @@ import { LoadingComponent } from "../../shared/loading/loading.component";
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  userName: string | null = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') || '').username : null;
+  email: string | null = LocalStorageUtils.getEmailFromToken();
   pendingCount = signal<number>(0);
   inProgressCount = signal<number>(0);
   completedCount = signal<number>(0);

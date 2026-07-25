@@ -1,3 +1,4 @@
+import { decodeJwtPayload } from "./jwtUtils";
 
 
 export default class LocalStorageUtils {
@@ -15,6 +16,14 @@ export default class LocalStorageUtils {
 
     static deleteItem(key: string): void {
         localStorage.removeItem(key);
+    }
+
+    static getEmailFromToken(): string | null {
+        const token = this.getItem(this.tokenKey);
+        if (!token) return null;
+
+        const claims = decodeJwtPayload<{ email: string; exp: number; iat: number }>(token);
+        return claims?.email ?? null;
     }
 
 }
