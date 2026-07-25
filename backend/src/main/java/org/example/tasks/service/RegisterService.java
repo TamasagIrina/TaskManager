@@ -28,13 +28,13 @@ public class RegisterService {
         String password = new String(Base64.getDecoder().decode(userCreateDTO.getPassword()));
 
         if (email.isEmpty() || password.isEmpty()) {
-            return new ResponseEntity<>("403: Empty response", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("409: Empty response", HttpStatus.CONFLICT);
         }
 
         User existingUser = userRepository.findByEmail(email);
 
         if (existingUser != null) {
-            return new ResponseEntity<>("403: Email already in use", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("409: Email already in use", HttpStatus.CONFLICT);
         }
 
         String hashPassword = Credential.MD5.digest(password).replaceFirst("MD5:", "").toLowerCase();
