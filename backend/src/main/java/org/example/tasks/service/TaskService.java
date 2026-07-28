@@ -32,6 +32,7 @@ public class TaskService {
     private final UserRepository userRepository;
     private final StatusTypeRepository statusTypeRepository;
     private final TaskMapper taskMapper;
+    private final CurrentUserService currentUserService;
 
     public List<TaskDTO> getTasks() {
         log.info("Getting Tasks: ");
@@ -46,7 +47,7 @@ public class TaskService {
     public List<TaskDTO> addTask(TaskCreateDTO taskCreateDTO) {
         Task newTask = taskMapper.toEntity(taskCreateDTO);
 
-        //aici se vor seta createdBy si createdByFullName din token
+        newTask.setCreatedByFullName(currentUserService.getCurrentUser().getUsername());
 
         taskRepository.save(newTask);
 
@@ -81,7 +82,6 @@ public class TaskService {
         task.setUser(taskMapper.resolveUser(taskCreateDTO.getUserId()));
         task.setDueDate(taskCreateDTO.getDueDate());
 
-        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
 
@@ -169,7 +169,6 @@ public class TaskService {
         StatusType statusType= getStatusTypeEntityOrThrow(statusTypeId);
 
         task.setStatusType(statusType);
-        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);
@@ -183,7 +182,6 @@ public class TaskService {
         User user = getUserEntityOrThrow(userId);
 
         task.setUser(user);
-        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);
@@ -196,7 +194,6 @@ public class TaskService {
         Task task = getTaskEntityOrThrow(id);
 
         task.setDueDate(dueDateTime != null ? dueDateTime.toLocalDate() : null);
-        //se va seta lastUpdatedBy din token
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);

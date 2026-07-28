@@ -1,4 +1,4 @@
-package org.example.tasks.service;
+package org.example.tasks.security;
 
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -19,12 +19,13 @@ public class JwtService {
     @Value("${jwt.expiration.ms}")
     private String jwtExpiration;
 
-    public String createToken(String email, String role) throws JoseException {
+    public String createToken(Long id, String email, String role) throws JoseException {
         JwtClaims claims = new JwtClaims();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture((float) Long.parseLong(jwtExpiration)/ (1000*60) );
         claims.setClaim("email", email);
         claims.setClaim("role", role);
+        claims.setSubject(id.toString());
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());    
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);

@@ -1,8 +1,9 @@
-package org.example.tasks.config;
+package org.example.tasks.security;
 
 import lombok.AllArgsConstructor;
 import org.example.tasks.model.Permission;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.UserRepository;
 import org.example.tasks.service.TaskService;
 import org.example.tasks.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -17,16 +18,16 @@ import static java.util.Arrays.stream;
 @AllArgsConstructor
 public class PermissionChecker {
 
-    private final TaskService taskService;
-
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     public boolean checkPermission(String resource, String action) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            String email = auth.getName();
+        if (auth != null && auth.getPrincipal()!=null) {
 
-            User user= userService.getUserByEmail(email);
+            UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
+            Long id = principal.getId();
+
+            User user= userRepository.findById(id).orElse(null);
 
             if (user != null) {
                 List<Permission> permissions= user.getRole().getPermissions().stream().toList();

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Task {
+public class Task extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,41 +26,6 @@ public class Task {
 
     @Column(name = "DUE_DATE")
     private LocalDate dueDate;
-
-    @Column(name = "CREATED_BY", length = 50)
-    private String createdBy;
-
-    @Column(name = "CREATION_DATE", nullable = false, updatable = false)
-    private LocalDateTime creationDate;
-
-    @Column(name = "LAST_UPDATE_DATE", nullable = false)
-    private LocalDateTime lastUpdateDate;
-
-    @Column(name = "LAST_UPDATED_BY", nullable = false, length = 50)
-    private String lastUpdatedBy;
-
-    @Column(name = "CREATED_BY_FULLNAME", length = 300)
-    private String createdByFullName;
-
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.creationDate = now;
-        this.lastUpdateDate = now;
-        if (this.createdBy == null) {
-            this.createdBy = "USER";
-        }
-        if (this.lastUpdatedBy == null) {
-            this.lastUpdatedBy = this.createdBy;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.lastUpdateDate = LocalDateTime.now();
-        this.lastUpdatedBy = "APP_USER";
-
-    }
 
     // FK  status_types(status_type_id)
     @ManyToOne(fetch = FetchType.LAZY)

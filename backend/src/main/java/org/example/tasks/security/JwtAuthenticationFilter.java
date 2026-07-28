@@ -1,4 +1,4 @@
-package org.example.tasks.config;
+package org.example.tasks.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,8 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 var claims = jwtConsumer.processToClaims(token);
 
+                Long id = Long.parseLong(claims.getSubject());
+                String email = (String) claims.getClaimValue("email");
+                String role = (String) claims.getClaimValue("role");
+
+                UserPrincipal principal = new UserPrincipal(id, email, role);
+
                 SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(claims.getClaimValue("email"), null, new ArrayList<>())
+                        new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<>())
                 );
 
             } catch (Exception e) {

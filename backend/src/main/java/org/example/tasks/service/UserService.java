@@ -28,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final TaskRepository taskRepository;
+    private final CurrentUserService currentUserService;
 
     public List<UserDTO> getAllUsers() {
         log.info("Users retrieved from database!");
@@ -69,7 +70,7 @@ public class UserService {
         log.info("Creating user {}", userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
 
-        //aici se vor seta createdBy si createdByFullName din token
+        user.setCreatedByFullName(currentUserService.getCurrentUser().getUsername());
 
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
@@ -86,8 +87,6 @@ public class UserService {
         existingUser.setEmail(userCreateDTO.getEmail());
         existingUser.setPassword(userCreateDTO.getPassword());
         existingUser.setBirthDate(userCreateDTO.getBirthDate());
-
-        //se va seta lastUpdatedBy din token
 
         User saved = userRepository.save(existingUser);
         return userMapper.toDTO(saved);

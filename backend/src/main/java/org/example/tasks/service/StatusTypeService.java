@@ -22,6 +22,8 @@ public class StatusTypeService {
 
     private final StatusTypeMapper statusTypeMapper;
 
+    private final CurrentUserService currentUserService;
+
     public List<StatusTypeDTO> getAllStatuses() {
         log.info("Statuses retrieved from database!");
         return  statusTypeRepository.findAll()
@@ -42,7 +44,7 @@ public class StatusTypeService {
         log.info("Creating status type {}", statusTypeCreateDTO);
         StatusType status = statusTypeMapper.toEntity(statusTypeCreateDTO);
 
-        //aici se vor seta createdBy si createdByFullName din token
+        status.setCreatedByFullName(currentUserService.getCurrentUser().getUsername());
 
         StatusType savedStatus = statusTypeRepository.save(status);
 
@@ -57,7 +59,6 @@ public class StatusTypeService {
                         "Nu a am gasit niciun status cu id-ul: " + statusTypeId));
 
         existing.setStatusName(statusTypeCreateDTO.getStatusName());
-        //se va seta lastUpdatedBy din token
 
         StatusType saved = statusTypeRepository.save(existing);
         return statusTypeMapper.toDTO(saved);

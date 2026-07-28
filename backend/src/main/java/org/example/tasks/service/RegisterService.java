@@ -8,6 +8,7 @@ import org.example.tasks.model.Role;
 import org.example.tasks.model.User;
 import org.example.tasks.repository.RoleRepository;
 import org.example.tasks.repository.UserRepository;
+import org.example.tasks.security.JwtService;
 import org.jose4j.lang.JoseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +63,7 @@ public class RegisterService {
             return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        String token = jwtService.createToken(email, defaultRole.getRoleName());
+        String token = jwtService.createToken(savedUser.getUserId(),email, defaultRole.getRoleName());
 
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>("500: Empty response", HttpStatus.INTERNAL_SERVER_ERROR);

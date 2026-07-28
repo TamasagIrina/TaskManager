@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
@@ -40,21 +40,6 @@ public class User {
     @Column(name = "IS_INTERNAL", nullable = false)
     private Boolean isInternal;
 
-    @Column(name = "CREATION_DATE", nullable = false, updatable = false)
-    private LocalDateTime creationDate;
-
-    @Column(name = "CREATED_BY", nullable = false, updatable = false, length = 50)
-    private String createdBy;
-
-    @Column(name = "LAST_UPDATE_DATE", nullable = false)
-    private LocalDateTime lastUpdateDate;
-
-    @Column(name = "LAST_UPDATED_BY", nullable = false, length = 50)
-    private String lastUpdatedBy;
-
-    @Column(name = "CREATED_BY_FULLNAME", length = 300)
-    private String createdByFullName;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "users_role_fk"))
     private Role role;
@@ -63,23 +48,5 @@ public class User {
     @PrePersist
     protected void onCreate() {
         this.isInternal = false;
-        LocalDateTime now = LocalDateTime.now();
-        this.creationDate = now;
-        this.lastUpdateDate = now;
-        if (this.createdBy == null) {
-            this.createdBy = "USER";
-        }
-        if (this.lastUpdatedBy == null) {
-            this.lastUpdatedBy = this.createdBy;
-        }
-        //cand adaugam audentificare cu Spring Security createdBy si createdByFullName se vor lua din token
-        //nu mi se pare e ok sa le setam noi de mana, momentan sunt pe default
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.lastUpdateDate = LocalDateTime.now();
-        this.lastUpdatedBy = "USER";
-
     }
 }
