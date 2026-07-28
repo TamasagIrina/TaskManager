@@ -55,6 +55,10 @@ public class User {
     @Column(name = "CREATED_BY_FULLNAME", length = 300)
     private String createdByFullName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "users_role_fk"))
+    private Role role;
+
 
     @PrePersist
     protected void onCreate() {

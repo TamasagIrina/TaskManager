@@ -19,13 +19,14 @@ public class JwtService {
     @Value("${jwt.expiration.ms}")
     private String jwtExpiration;
 
-    public String createToken(String email) throws JoseException {
+    public String createToken(String email, String role) throws JoseException {
         JwtClaims claims = new JwtClaims();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture((float) Long.parseLong(jwtExpiration)/ (1000*60) );
         claims.setClaim("email", email);
+        claims.setClaim("role", role);
         JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(claims.toJson());
+        jws.setPayload(claims.toJson());    
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
         jws.setKey(new AesKey(jwtSecret.getBytes(StandardCharsets.UTF_8)));
 

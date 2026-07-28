@@ -44,6 +44,10 @@ public class UserService {
                         "Nu a fost gasit niciun user cu id-ul: " + userId));
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public AuthResponse logUser(AuthRequest authRequest) {
         User user= userRepository.findByEmail(authRequest.getEmail());
         log.info("User logged in: " + user);

@@ -40,7 +40,7 @@ public class LoginService {
             return new ResponseEntity<>("401: Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
-        String token = jwtService.createToken(authRequest.getEmail());
+        String token = jwtService.createToken(authRequest.getEmail(), dbUser.getRole().getRoleName());
 
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>("500: Empty response", HttpStatus.INTERNAL_SERVER_ERROR);

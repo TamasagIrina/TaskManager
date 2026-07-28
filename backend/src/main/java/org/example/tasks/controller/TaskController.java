@@ -9,6 +9,7 @@ import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.service.TaskService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,39 +28,46 @@ public class TaskController {
 
 
     @GetMapping
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
     public List<TaskDTO> getTasks() {
         return taskService.getTasks();
     }
 
     @PostMapping
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'create')")
     public List<TaskDTO> createTask(@RequestBody @Valid TaskCreateDTO taskCreateDTO) {
         return taskService.addTask(taskCreateDTO);
     }
 
     @PostMapping("/list")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'create')")
     public List<TaskDTO> createTasks(@RequestBody @Valid List<TaskCreateDTO> taskCreateDTOList) {
         return taskService.addTasks(taskCreateDTOList);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'create')")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         TaskDTO task = taskService.getTaskById(id);
         return ResponseEntity.ok(task);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateTask(@RequestBody @Valid TaskCreateDTO taskCreateDTO, @PathVariable Long id) {
         TaskDTO task = taskService.updateTaskById(id, taskCreateDTO);
         return ResponseEntity.ok(task);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'delete')")
     public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
         taskService.deleteTaskById(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/filter")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter')")
     public List<TaskDTO> filterTasks(
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
@@ -77,12 +85,14 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestParam String statusTypeId) {
         TaskDTO task = taskService.updateStatus(id, statusTypeId);
         return ResponseEntity.ok(task);
     }
 
     @PatchMapping("/{id}/user")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateTaskUser(@PathVariable Long id,
                                                   @RequestParam(required = false) Long userId) {
         TaskDTO task = taskService.updateUser(id, userId);
@@ -90,6 +100,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/due-date-time")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateDueDateTime(
             @PathVariable Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime) {
@@ -98,16 +109,19 @@ public class TaskController {
     }
 
     @GetMapping("/count")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
     public long countTasks(@RequestParam(required = false) String statusName) {
         return taskService.countTasks(statusName);
     }
 
     @GetMapping("/overdue")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
     public List<TaskDTO> getOverdueTasks() {
         return taskService.getOverdueTasks();
     }
 
     @GetMapping("/due-between")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
     public List<TaskDTO> getTasksDueBetween(@RequestParam LocalDate start,
                                          @RequestParam LocalDate end) {
         return taskService.getTasksDueBetween(start, end);

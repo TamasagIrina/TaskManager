@@ -11,6 +11,7 @@ import org.example.tasks.model.User;
 import org.example.tasks.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +25,13 @@ public class UserController {
 
 
     @GetMapping
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'get all')")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'get all')")
     public UserDTO getUserById(@PathVariable Long userId) {
         return userService.getUserById(userId);
     }
@@ -45,6 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'update')")
     public UserDTO updateUser(@PathVariable Long userId,
                               @Valid @RequestBody UserCreateDTO userCreateDTO) {
         return userService.updateUser(userId, userCreateDTO);
@@ -52,6 +56,7 @@ public class UserController {
 
 
     @PutMapping("/{userId}/upsert")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'update')")
     public ResponseEntity<UserDTO> updateOrCreateUser(@PathVariable Long userId,
                                                       @Valid @RequestBody UserCreateDTO userCreateDTO) {
 
@@ -63,6 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/internal/{isInternal}")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'get all')")
     public List<UserDTO> getUserInternal(@PathVariable Boolean isInternal) {
         return  userService.getUsersByIsInternal(isInternal);
     }
@@ -71,6 +77,7 @@ public class UserController {
 
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'delete')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
@@ -78,6 +85,7 @@ public class UserController {
 
 
     @DeleteMapping("/{oldUserId}/reassign-to/{newUserId}")
+    @PreAuthorize("@permissionChecker.checkPermission('users', 'delete')")
     public ResponseEntity<Void> reassignToUser(@PathVariable Long oldUserId, @PathVariable Long newUserId) {
         userService.reassignAndDeleteUser(oldUserId, newUserId);
         return ResponseEntity.noContent().build();
