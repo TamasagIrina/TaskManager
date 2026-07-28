@@ -12,6 +12,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if ((error.status === 401 || error.status === 403 ||  error.status === 409) && !req.url.includes('login') && !req.url.includes('register')) {
         LocalStorageUtils.deleteItem(LocalStorageUtils.tokenKey);
+        LocalStorageUtils.deleteItem("user_email");
         router.navigate(['/login-register']);
       }
 

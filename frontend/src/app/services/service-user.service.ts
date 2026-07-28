@@ -16,13 +16,7 @@ export class ServiceUserService {
     return this.http.get<UserDTOResponse[]>(this.apiUrl);
   }
 
-  login(authRequest: AuthRequestDTO) {
-    const url = `${this.apiUrl}/login`;
-    return this.http.post(url, authRequest);
-  }
+  // deleteUsers(){
 
-  register(user: UserDTOCreate) {
-    const url = `${this.apiUrl}/register`;
-    return this.http.post(url, user);
-  }
+  // } 
 }

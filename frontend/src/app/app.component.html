@@ -16,7 +16,10 @@
   <a routerLink="/home">Home</a>
   <a routerLink="/my-tasks">My Tasks</a>
   <a routerLink="/search">Search</a>
-  <a routerLink="/new-task">New Task</a>
+  @if(role()==="ADMIN"){
+     <a routerLink="/new-task">New Task</a>
+  }
+ 
 </nav>
 }
 

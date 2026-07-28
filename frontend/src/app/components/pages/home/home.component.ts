@@ -47,6 +47,8 @@ export class HomeComponent {
     this.loadDashboardStats();
     this.loadOverdueTasks();
     this.loadUpcomingTasks();
+    console.log(LocalStorageUtils.getRoleFromToken());
+    
   }
 
   loadDashboardStats() {

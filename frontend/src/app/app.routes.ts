@@ -6,13 +6,14 @@ import { LoginRegisterComponent } from './components/pages/login-register/login-
 import { logginGuardServiceGuard } from './services/loggin-guard-service.guard';
 import { AddEditTaskComponent } from './components/shared/add-edit-task/add-edit-task.component';
 import { guestOnlyGuard } from './services/guest-only.guard';
+import { adminGuard } from './services/admin.guard';
 
 export const routes: Routes = [
     {path: 'home',component: HomeComponent, canActivate: [logginGuardServiceGuard]},
     {path: 'my-tasks',component: MyTasksComponent, canActivate: [logginGuardServiceGuard]},
     {path: 'search',component: SearchComponent, canActivate: [logginGuardServiceGuard]},
-    {path: 'new-task',component: AddEditTaskComponent, canActivate: [logginGuardServiceGuard]},
-    {path: 'edit-task/:id',component: AddEditTaskComponent, canActivate: [logginGuardServiceGuard]},
+    {path: 'new-task',component: AddEditTaskComponent, canActivate: [adminGuard]},
+    {path: 'edit-task/:id',component: AddEditTaskComponent, canActivate: [adminGuard]},
     {path: 'login-register',component: LoginRegisterComponent, canActivate:[guestOnlyGuard]},
     
     { path: '**', redirectTo: 'home' }

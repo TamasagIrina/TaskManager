@@ -14,6 +14,8 @@ export class AppComponent {
   title = 'TasksFrontEndApp';
   email = signal<string>("");
 
+  role= signal<string>("");
+
   router = inject(Router);
 
   ngOnInit() {
@@ -21,7 +23,8 @@ export class AppComponent {
   }
 
   setEmail() {
-    this.email.set(LocalStorageUtils.getEmailFromToken()!);
+    this.email.set(LocalStorageUtils.getItem("user_email")!);
+    this.role.set(LocalStorageUtils.getRoleFromToken()!);
   }
 
   onLogout(): void {

@@ -60,6 +60,8 @@ export class LoginRegisterComponent {
 
         LocalStorageUtils.setItem(LocalStorageUtils.tokenKey, response);
 
+        LocalStorageUtils.setItem("user_email", LocalStorageUtils.getEmailFromToken());
+
         this.appComponent.setEmail();
 
         this.router.navigate(['/home']);
@@ -96,6 +98,8 @@ export class LoginRegisterComponent {
 
         LocalStorageUtils.setItem(LocalStorageUtils.tokenKey, response);
 
+        LocalStorageUtils.setItem("user_email", LocalStorageUtils.getEmailFromToken());
+        
         this.appComponent.setEmail();
 
         this.router.navigate(['/home']);
