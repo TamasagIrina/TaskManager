@@ -6,10 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
+import org.example.tasks.dto.response.UserTaskStatsDTO;
+import org.example.tasks.security.UserPrincipal;
 import org.example.tasks.service.TaskService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +56,14 @@ public class TaskController {
         return ResponseEntity.ok(task);
     }
 
+    @GetMapping("/tasks-user/{id}")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    public ResponseEntity<List<TaskDTO>> getTaskByUserId(@PathVariable Long id) {
+
+        List<TaskDTO> task = taskService.getTaskByUserId(id);
+        return ResponseEntity.ok(task);
+    }
+
     @PutMapping("/update/{id}")
     @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateTask(@RequestBody @Valid TaskCreateDTO taskCreateDTO, @PathVariable Long id) {
@@ -67,7 +79,7 @@ public class TaskController {
     }
 
     @GetMapping("/filter")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter') and @permissionChecker.isAdmin()")
     public List<TaskDTO> filterTasks(
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
@@ -84,6 +96,25 @@ public class TaskController {
         return taskService.filterTasks(filter);
     }
 
+    @GetMapping("/filter-tasks-user/{id}")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    public List<TaskDTO> filterTasksUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) String taskName,
+            @RequestParam(required = false) String statusName,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
+    ) {
+        TaskFilterDTO filter = TaskFilterDTO.builder()
+                .taskName(taskName)
+                .statusName(statusName)
+                .username(username)
+                .dueDateTime(dueDateTime)
+                .build();
+
+        return taskService.filterTasksUser(id, filter);
+    }
+
     @PatchMapping("/{id}/status")
     @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
     public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestParam String statusTypeId) {
@@ -92,7 +123,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/user")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update') and @permissionChecker.isAdmin()")
     public ResponseEntity<TaskDTO> updateTaskUser(@PathVariable Long id,
                                                   @RequestParam(required = false) Long userId) {
         TaskDTO task = taskService.updateUser(id, userId);
@@ -109,21 +140,52 @@ public class TaskController {
     }
 
     @GetMapping("/count")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all') and @permissionChecker.isAdmin()")
     public long countTasks(@RequestParam(required = false) String statusName) {
         return taskService.countTasks(statusName);
     }
 
     @GetMapping("/overdue")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all') and @permissionChecker.isAdmin()")
     public List<TaskDTO> getOverdueTasks() {
         return taskService.getOverdueTasks();
     }
 
     @GetMapping("/due-between")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get all') and @permissionChecker.isAdmin()")
     public List<TaskDTO> getTasksDueBetween(@RequestParam LocalDate start,
                                          @RequestParam LocalDate end) {
         return taskService.getTasksDueBetween(start, end);
+    }
+
+    @GetMapping("/user/{id}/count")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    public ResponseEntity<Long> countTasksByUserId(
+            @PathVariable Long id,
+            @RequestParam(required = false) String statusName) {
+        long count = taskService.countTasksByUserId(id, statusName);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/user/{id}/overdue")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    public ResponseEntity<List<TaskDTO>> getOverdueTasksByUserId(@PathVariable Long id) {
+        List<TaskDTO> tasks = taskService.getOverdueTasksByUserId(id);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/user/{id}/due-between")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    public ResponseEntity<List<TaskDTO>> getTasksDueBetweenForUser(
+            @PathVariable Long id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+        List<TaskDTO> tasks = taskService.getTasksDueBetweenForUser(id, start, end);
+        return ResponseEntity.ok(tasks);
+    }
+    @GetMapping("/stats/by-user")
+    @PreAuthorize("@permissionChecker.isAdmin()")
+    public List<UserTaskStatsDTO> getTaskStatsByUser() {
+        return taskService.getTaskStatsByUser();
     }
 }

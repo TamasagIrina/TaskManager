@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
+import org.example.tasks.dto.response.UserTaskStatsDTO;
 import org.example.tasks.mapper.TaskMapper;
 import org.example.tasks.model.StatusType;
 import org.example.tasks.model.Task;
@@ -72,6 +73,14 @@ public class TaskService {
                         "Task not found with id: " + id));
     }
 
+    public List<TaskDTO> getTaskByUserId(Long userId) {
+        List<Task> tasks = taskRepository.findByUser_UserId(userId);
+        return tasks.stream()
+                .map(taskMapper::toDTO)
+                .toList();
+
+    }
+
     // actualizeaza toate informatiile unui task
     @Transactional
     public TaskDTO updateTaskById(Long id, TaskCreateDTO taskCreateDTO) {
@@ -98,6 +107,22 @@ public class TaskService {
         }
         log.info("Deleted Task: {} ", taskRepository.findById(id));
         taskRepository.deleteById(id);
+    }
+
+    public List<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter) {
+
+        List<TaskDTO> result = new ArrayList<>();
+
+        for (Task task : taskRepository.findByUser_UserId(userId)) {
+            if (checkStatus(task, filter)
+                    && checkTaskName(task, filter)
+                    && checkUser(task, filter)
+                    && checkDueDateTime(task, filter)) {
+                result.add(taskMapper.toDTO(task));
+            }
+        }
+
+        return result;
     }
 
     // filtreaza task-urile in functie de criteriile primite
@@ -221,6 +246,34 @@ public class TaskService {
                 .stream()
                 .map(taskMapper::toDTO)
                 .toList();
+    }
+
+    // numara task-urile unui user, in functie de status sau toate
+    public long countTasksByUserId(Long userId, String statusName) {
+        if (statusName == null) {
+            return taskRepository.countByUser_UserId(userId);
+        }
+        return taskRepository.countByUser_UserIdAndStatusType_StatusName(userId, statusName);
+    }
+
+    // returneaza task-urile unui user care au depasit data limita
+    public List<TaskDTO> getOverdueTasksByUserId(Long userId) {
+        return taskRepository.findByUser_UserIdAndDueDateBefore(userId, LocalDate.now())
+                .stream()
+                .map(taskMapper::toDTO)
+                .toList();
+    }
+
+    // returneaza task-urile unui user care sunt in interval
+    public List<TaskDTO> getTasksDueBetweenForUser(Long userId, LocalDate start, LocalDate end) {
+        return taskRepository.findTasksDueBetweenForUser(userId, start, end)
+                .stream()
+                .map(taskMapper::toDTO)
+                .toList();
+    }
+
+    public List<UserTaskStatsDTO> getTaskStatsByUser() {
+        return taskRepository.getTaskStatsByUser();
     }
 
     private Task getTaskEntityOrThrow(Long id) {

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.tasks.model.Permission;
 import org.example.tasks.model.User;
 import org.example.tasks.repository.UserRepository;
+import org.example.tasks.service.CurrentUserService;
 import org.example.tasks.service.TaskService;
 import org.example.tasks.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,8 @@ import static java.util.Arrays.stream;
 public class PermissionChecker {
 
     private final UserRepository userRepository;
+
+    private final CurrentUserService currentUserService;
 
     public boolean checkPermission(String resource, String action) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -39,6 +42,26 @@ public class PermissionChecker {
         return false;
 
 
+    }
+
+    public boolean isSelfOrAdmin(Long targetUserId) {
+        User principal = currentUserService.getCurrentUser();
+        if (principal == null) {
+            return false;
+        }
+
+        boolean isSelf = principal.getUserId().equals(targetUserId);
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(principal.getRole().getRoleName());
+        return isSelf || isAdmin;
+    }
+
+    public boolean isAdmin() {
+        User principal = currentUserService.getCurrentUser();
+        if (principal == null) {
+            return false;
+        }
+        boolean isAdmin = principal.getRole().getRoleName().equals("ADMIN");
+        return isAdmin;
     }
 
 }
