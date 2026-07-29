@@ -97,18 +97,16 @@ public class TaskController {
     }
 
     @GetMapping("/filter-tasks-user/{id}")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'get by id') and @permissionChecker.isSelfOrAdmin(#id)")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter by user id') and @permissionChecker.isSelfOrAdmin(#id)")
     public List<TaskDTO> filterTasksUser(
             @PathVariable Long id,
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
-            @RequestParam(required = false) String username,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
                 .statusName(statusName)
-                .username(username)
                 .dueDateTime(dueDateTime)
                 .build();
 
@@ -116,7 +114,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update status') and @permissionChecker.isCurrentUserTaskOwnerOrAdmin(#id) ")
     public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestParam String statusTypeId) {
         TaskDTO task = taskService.updateStatus(id, statusTypeId);
         return ResponseEntity.ok(task);
@@ -131,11 +129,11 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/due-date-time")
-    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update')")
+    @PreAuthorize("@permissionChecker.checkPermission('tasks', 'update') and @permissionChecker.isAdmin()")
     public ResponseEntity<TaskDTO> updateDueDateTime(
             @PathVariable Long id,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime) {
-        TaskDTO task = taskService.updateDueDateTime(id, dueDateTime);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate  dueDate) {
+        TaskDTO task = taskService.updateDueDateTime(id, dueDate);
         return ResponseEntity.ok(task);
     }
 

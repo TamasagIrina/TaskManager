@@ -56,20 +56,15 @@ public class RegisterService {
         try {
             savedUser = userRepository.save(newUser);
         } catch (Exception e) {
-            return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<>("500: Failed to save user - " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (savedUser.getUserId() == null || savedUser.getUserId() == 0) {
             return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        String token = jwtService.createToken(savedUser.getUserId(),email, defaultRole.getRoleName());
-
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>("500: Empty response", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
 

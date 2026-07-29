@@ -1,8 +1,11 @@
 package org.example.tasks.security;
 
 import lombok.AllArgsConstructor;
+import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.model.Permission;
+import org.example.tasks.model.Task;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.TaskRepository;
 import org.example.tasks.repository.UserRepository;
 import org.example.tasks.service.CurrentUserService;
 import org.example.tasks.service.TaskService;
@@ -20,8 +23,10 @@ import static java.util.Arrays.stream;
 public class PermissionChecker {
 
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
     private final CurrentUserService currentUserService;
+
 
     public boolean checkPermission(String resource, String action) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -62,6 +67,28 @@ public class PermissionChecker {
         }
         boolean isAdmin = principal.getRole().getRoleName().equals("ADMIN");
         return isAdmin;
+    }
+
+    public boolean isCurrentUserTaskOwnerOrAdmin(Long taskId) {
+        if(isAdmin()){
+            return true;
+        }
+
+        if (taskId == null) {
+            return false;
+        }
+
+        User principal =  currentUserService.getCurrentUser();
+        if (principal == null) {
+            return false;
+        }
+
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task == null || task.getUser() == null) {
+            return false;
+        }
+
+        return task.getUser().getUserId().equals(principal.getUserId());
     }
 
 }

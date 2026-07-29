@@ -74,8 +74,6 @@ public class UserController {
     }
 
 
-
-
     @DeleteMapping("/{userId}")
     @PreAuthorize("@permissionChecker.checkPermission('users', 'delete')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {

@@ -109,6 +109,7 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
+    // filtreaza task-urile user-ului in functie de criteriile primite
     public List<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter) {
 
         List<TaskDTO> result = new ArrayList<>();
@@ -116,7 +117,6 @@ public class TaskService {
         for (Task task : taskRepository.findByUser_UserId(userId)) {
             if (checkStatus(task, filter)
                     && checkTaskName(task, filter)
-                    && checkUser(task, filter)
                     && checkDueDateTime(task, filter)) {
                 result.add(taskMapper.toDTO(task));
             }
@@ -215,10 +215,10 @@ public class TaskService {
 
     // actualizeaza doar data limita a unui task
     @Transactional
-    public TaskDTO updateDueDateTime(Long id, LocalDateTime dueDateTime) {
+    public TaskDTO updateDueDateTime(Long id, LocalDate dueDateTime) {
         Task task = getTaskEntityOrThrow(id);
 
-        task.setDueDate(dueDateTime != null ? dueDateTime.toLocalDate() : null);
+        task.setDueDate(dueDateTime != null ? dueDateTime : null);
 
         Task saved = taskRepository.save(task);
         return taskMapper.toDTO(saved);

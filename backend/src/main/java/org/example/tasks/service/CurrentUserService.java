@@ -15,10 +15,11 @@ public class CurrentUserService {
 
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal()!=null) {
-            UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
+
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {
             return userRepository.findById(principal.getId()).orElse(null);
         }
+
         throw new IllegalStateException("No authenticated user found");
     }
 }
