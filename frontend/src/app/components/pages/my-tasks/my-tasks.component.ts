@@ -112,8 +112,10 @@ export class MyTasksComponent implements OnInit {
     
   }
 
-  updateTaskFromList(){
-    this.getTasks();
+  updateTaskFromList(task: TaskDTOResponse){
+    this.tasks.update(currentStats =>
+            currentStats.filter(t => t.taskId !== task.taskId)
+          );
   }
 
   getStatuses() {
