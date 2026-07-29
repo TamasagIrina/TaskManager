@@ -5,6 +5,8 @@ import { TaskDTOResponse } from '../../../domains/TaskDTOResponse';
 import { TaskCardComponent } from "../../shared/task-card/task-card.component";
 import { LoadingComponent } from "../../shared/loading/loading.component";
 import LocalStorageUtils from '../../../utils/localStorageUtils';
+import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
+import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
 
 @Component({
   selector: 'app-home',
@@ -14,10 +16,12 @@ import LocalStorageUtils from '../../../utils/localStorageUtils';
 })
 export class HomeComponent {
   email: string | null = LocalStorageUtils.getEmailFromToken();
+
   pendingCount = signal<number>(0);
   inProgressCount = signal<number>(0);
   completedCount = signal<number>(0);
 
+  error = signal<string>("");
   loading = signal<boolean>(true);
 
   overdueTasks = signal<TaskDTOResponse[]>([]);
@@ -30,7 +34,7 @@ export class HomeComponent {
     this.pendingCount() + this.inProgressCount() + this.completedCount()
   );
 
-  
+
   pendingPercent = computed(() =>
     this.totalTasks() === 0 ? 0 : (this.pendingCount() / this.totalTasks()) * 100
   );
@@ -47,18 +51,39 @@ export class HomeComponent {
     this.loadDashboardStats();
     this.loadOverdueTasks();
     this.loadUpcomingTasks();
-    console.log(LocalStorageUtils.getRoleFromToken());
-    
+
+  }
+  private getUserId(): number | null {
+    const idString = LocalStorageUtils.getIDFromToken();
+
+    if (!idString) {
+      this.error.set('User ID not found');
+      this.loading.set(false);
+      return null;
+    }
+
+    const userId = Number(idString);
+    if (Number.isNaN(userId)) {
+      this.error.set('Invalid user ID');
+      this.loading.set(false);
+      return null;
+    }
+
+    return userId;
   }
 
   loadDashboardStats() {
     this.loading.set(true);
 
+    const userId = this.getUserId();
+    if (userId === null) {
+      return;
+    }
 
     forkJoin({
-      pending: this.serviceTasks.getTaskCount('Pending'),
-      inProgress: this.serviceTasks.getTaskCount('In Progress'),
-      completed: this.serviceTasks.getTaskCount('Done')
+      pending: this.serviceTasks.getTaskCountByUserId(userId, 'Pending'),
+      inProgress: this.serviceTasks.getTaskCountByUserId(userId, 'In Progress'),
+      completed: this.serviceTasks.getTaskCountByUserId(userId, 'Done')
     }).subscribe({
       next: (results) => {
         this.pendingCount.set(results.pending);
@@ -68,6 +93,7 @@ export class HomeComponent {
       },
       error: (err) => {
         console.error('Eroare la încărcarea statisticilor', err);
+        this.error.set(err);
         this.loading.set(false);
       }
     });
@@ -75,7 +101,14 @@ export class HomeComponent {
 
   loadOverdueTasks() {
     this.loadingOverdue.set(true);
-    this.serviceTasks.getOverdueTasks().subscribe({
+
+    const userId = this.getUserId();
+    if (userId === null) {
+      this.loadingOverdue.set(false);
+      return;
+    }
+
+    this.serviceTasks.getOverdueTasksByUserId(userId).subscribe({
       next: (data) => {
         this.overdueTasks.set(data);
         this.loadingOverdue.set(false);
@@ -89,6 +122,13 @@ export class HomeComponent {
 
   loadUpcomingTasks() {
     this.loadingUpcoming.set(true);
+
+    const userId = this.getUserId();
+    if (userId === null) {
+      this.loadingUpcoming.set(false);
+      return;
+    }
+
     const today = new Date();
     const nextWeek = new Date();
     nextWeek.setDate(today.getDate() + 7);
@@ -97,16 +137,17 @@ export class HomeComponent {
     const startStr = today.toISOString().split('T')[0];
     const endStr = nextWeek.toISOString().split('T')[0];
 
-    this.serviceTasks.getTasksDueBetween(startStr, endStr).subscribe({
+    this.serviceTasks.getTasksDueBetweenForUser(userId, startStr, endStr).subscribe({
       next: (data) => {
-        this.upcomingTasks.set(data); 
+        this.upcomingTasks.set(data);
         this.loadingUpcoming.set(false);
-      },  
+      },
       error: (err) => {
         console.error('Eroare la încărcarea taskurilor viitoare', err);
         this.loadingUpcoming.set(false);
       }
     });
   }
+
 
 }

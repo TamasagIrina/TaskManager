@@ -6,6 +6,7 @@ import { TaskCardComponent } from "../../shared/task-card/task-card.component";
 import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
 import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-my-tasks',
@@ -38,6 +39,8 @@ export class MyTasksComponent implements OnInit {
   ngOnInit() {
     this.getTasks();
     this.getStatuses();
+
+    console.log(LocalStorageUtils.getIDFromToken());
   }
 
   filterByStatus(status: string) {
@@ -55,9 +58,22 @@ export class MyTasksComponent implements OnInit {
     this.error.set(null);
 
     const filter = this.activeStatus !== '' ? { statusName: this.activeStatus } : {};
+    const idString = LocalStorageUtils.getIDFromToken();
 
-    
-    this.serviceTasks.getFilteredTasks(filter).subscribe({
+    if (!idString) {
+      this.error.set('User ID not found');
+      this.loading.set(false);
+      return;
+    }
+
+    const userId = Number(idString);
+    if (Number.isNaN(userId)) {
+      this.error.set('Invalid user ID');
+      this.loading.set(false);
+      return;
+    }
+
+    this.serviceTasks.getFilteredUserTasks(userId, filter).subscribe({
       next: (data) => {
         // setTimeout(() => {
         //   this.tasks.set(data);

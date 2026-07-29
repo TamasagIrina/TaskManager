@@ -6,6 +6,7 @@ import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
 import { ServiceTasksService } from '../../../services/service-tasks.service';
 import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-search',
@@ -62,16 +63,46 @@ export class SearchComponent {
       filter.dueDateTime = `${this.searchDate}T00:00:00`;
     }
 
-    this.serviceTasks.getFilteredTasks(filter).subscribe({
-      next: (data) => {
-        this.tasks.set(data);
+    if (LocalStorageUtils.getRoleFromToken() === "ADMIN") {
+      this.serviceTasks.getFilteredTasks(filter).subscribe({
+        next: (data) => {
+          this.tasks.set(data);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.message);
+          this.loading.set(false);
+        }
+      });
+    } else {
+      const idString = LocalStorageUtils.getIDFromToken();
+
+      if (!idString) {
+        this.error.set('User ID not found');
         this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message);
-        this.loading.set(false);
+        return;
       }
-    });
+
+      const userId = Number(idString);
+      if (Number.isNaN(userId)) {
+        this.error.set('Invalid user ID');
+        this.loading.set(false);
+        return;
+      }
+
+      this.serviceTasks.getFilteredUserTasks(userId, filter).subscribe({
+        next: (data) => {
+          this.tasks.set(data);
+          this.loading.set(false);
+
+        },
+        error: (err) => {
+          this.error.set(err.message);
+          this.loading.set(false);
+        }
+      });
+    }
+
   }
 
   clearFilters() {

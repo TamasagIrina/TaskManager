@@ -4,10 +4,10 @@
   </div>
 
   @if (email()) {
-    <div class="user-section">
-      <p class="user-info">Logged in as: <span class="username-highlight">{{ email() }}</span></p>
-      <button type="button" class="btn-logout" (click)="onLogout()">Logout</button>
-    </div>
+  <div class="user-section">
+    <p class="user-info">Logged in as: <span class="username-highlight">{{ email() }}</span></p>
+    <button type="button" class="btn-logout" (click)="onLogout()">Logout</button>
+  </div>
   }
 </header>
 
@@ -17,9 +17,10 @@
   <a routerLink="/my-tasks">My Tasks</a>
   <a routerLink="/search">Search</a>
   @if(role()==="ADMIN"){
-     <a routerLink="/new-task">New Task</a>
+  <a routerLink="/new-task">New Task</a>
+  <a routerLink="/admin-dashboard">Admin Dashboard</a>
   }
- 
+
 </nav>
 }
 

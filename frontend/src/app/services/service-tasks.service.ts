@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { TaskDTOResponse } from '../domains/TaskDTOResponse';
 import { TaskCreateDTO } from '../domains/TaskDTOCreate';
 import { TaskFilterDTO } from '../domains/TaskFilterDTO';
+import { UserTaskStatsDTO } from '../domains/UserTaskStatsDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,27 @@ export class ServiceTasksService {
     return this.http.get<TaskDTOResponse[]>(url, { params });
   }
 
+  getFilteredUserTasks(id: number, filter: TaskFilterDTO = {}) {
+    let params = new HttpParams();
+
+    if (filter.taskName) {
+      params = params.set('taskName', filter.taskName);
+    }
+    if (filter.statusName) {
+      params = params.set('statusName', filter.statusName);
+    }
+    if (filter.username) {
+      params = params.set('username', filter.username);
+    }
+    if (filter.dueDateTime) {
+      params = params.set('dueDateTime', filter.dueDateTime);
+    }
+
+    const url = `${this.apiUrl}/filter-tasks-user/${id}`;
+
+    return this.http.get<TaskDTOResponse[]>(url, { params });
+  }
+
   getTaskCount(statusName?: string) {
     let params = new HttpParams();
     if (statusName) {
@@ -71,40 +93,60 @@ export class ServiceTasksService {
     return this.http.put(url, task);
   }
 
+  getTaskCountByUserId(id: number, statusName?: string) {
+    let params = new HttpParams();
+    if (statusName) {
+      params = params.set('statusName', statusName);
+    }
+
+    return this.http.get<number>(`${this.apiUrl}/user/${id}/count`, { params });
+  }
+
+  getOverdueTasksByUserId(id: number) {
+    return this.http.get<TaskDTOResponse[]>(`${this.apiUrl}/user/${id}/overdue`);
+  }
+
+  getTasksDueBetweenForUser(id: number, start: string, end: string) {
+    let params = new HttpParams()
+      .set('start', start)
+      .set('end', end);
+    return this.http.get<TaskDTOResponse[]>(`${this.apiUrl}/user/${id}/due-between`, { params });
+  }
+
+  updateTaskUser(taskId: number, userName: string) {
+    const url = `${this.apiUrl}/${taskId}/user`;
+    let params = new HttpParams();
+    if (userName) {
+      params = params.set('userName', userName);
+    }
+    return this.http.patch(url, {}, { params });
+  }
+
   updateTaskStatus(taskId: number, statusName: string) {
-    const url = `${this.apiUrl}${taskId}/status`;
+    const url = `${this.apiUrl}/${taskId}/status`;
 
     let params = new HttpParams();
     if (statusName) {
       params = params.set('statusName', statusName);
     }
-    return this.http.patch(url, { params });
-
-  }
-
-  updateTaskUser(taskId: number, userName: string) {
-    const url = `${this.apiUrl}${taskId}/user`;
-
-    let params = new HttpParams();
-    if (userName) {
-      params = params.set('statusName', userName);
-    }
-    return this.http.patch(url, { params });
+    return this.http.patch(url, {}, { params });
   }
 
   updateDueDateTime(taskId: number, dueDateTime: string) {
-    const url = `${this.apiUrl}${taskId}/due-date-time`;
-
+    const url = `${this.apiUrl}/${taskId}/due-date-time`;
     let params = new HttpParams();
     if (dueDateTime) {
-      params = params.set('statusName', dueDateTime);
+      params = params.set('dueDateTime', dueDateTime);
     }
-    return this.http.patch(url, { params });
-
+    return this.http.patch(url, {}, { params });
   }
 
   deleteTask(taskId: number) {
     const url = `${this.apiUrl}/${taskId}`;
     return this.http.delete(url);
+  }
+
+  getTaskStatsByUser() {
+    return this.http.get<UserTaskStatsDTO[]>(`${this.apiUrl}/stats/by-user`);
   }
 }

@@ -24,6 +24,8 @@ export class AddEditTaskComponent {
 
   id = this.router.getCurrentNavigation()?.extras.state?.['id'];
 
+  preselectedUserId = this.router.getCurrentNavigation()?.extras.state?.['userId'];
+
 
   private fb = inject(FormBuilder);
   private serviceTask = inject(ServiceTasksService);
@@ -50,11 +52,21 @@ export class AddEditTaskComponent {
     this.loadUsers();
     this.loadStatusTypes();
     this.getTaskToEdit();
+
+  }
+
+
+  applyPreselectedUser() {
+    if (this.preselectedUserId !== undefined && this.id === undefined) {
+      this.taskForm.patchValue({
+        userId: this.preselectedUserId
+      });
+    }
   }
 
   getTaskToEdit() {
 
-    if (this.id!==undefined) {
+    if (this.id !== undefined) {
       this.serviceTask.getTaskById(this.id).subscribe({
         next: (data) => {
           this.taskToEdit.set(data);
@@ -85,7 +97,7 @@ export class AddEditTaskComponent {
         next: () => {
           console.log('Task actualizat cu succes!');
           alert('Task actualizat cu succes!');
-          
+
           this.router.navigate(["/my-tasks"]);
 
 
@@ -119,6 +131,7 @@ export class AddEditTaskComponent {
       next: (data) => {
         this.users.set(data);
         this.isLoadingUsers.set(false);
+        this.applyPreselectedUser();
       },
       error: (err) => {
         this.errorUsers.set('Eroare la încărcarea utilizatorilor.');

@@ -26,7 +26,7 @@ export default class LocalStorageUtils {
         const token = this.getItem(this.tokenKey);
         if (!token) return null;
 
-        const claims = decodeJwtPayload<{ email: string; role: string; exp: number; iat: number }>(token);
+        const claims = decodeJwtPayload<{sub:string; email: string; role: string; exp: number; iat: number }>(token);
         return claims?.email ?? null;
     }
 
@@ -34,8 +34,16 @@ export default class LocalStorageUtils {
         const token = this.getItem(this.tokenKey);
         if (!token) return null;
 
-        const claims = decodeJwtPayload<{ email: string; role: string; exp: number; iat: number }>(token);
+        const claims = decodeJwtPayload<{ sub:string; email: string; role: string; exp: number; iat: number }>(token);
         return claims?.role ?? null;
+    }
+
+     static getIDFromToken(): string | null {
+        const token = this.getItem(this.tokenKey);
+        if (!token) return null;
+
+        const claims = decodeJwtPayload<{ sub:string; email: string; role: string; exp: number; iat: number }>(token);
+        return claims?.sub ?? null;
     }
 
 
