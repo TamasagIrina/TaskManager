@@ -6,16 +6,21 @@ import { UserTaskStatsDTO } from '../../../domains/UserTaskStatsDTO';
 import { TaskCardComponent } from "../../shared/task-card/task-card.component";
 import { LoadingComponent } from "../../shared/loading/loading.component";
 import { Router } from '@angular/router';
+import { ServiceUserService } from '../../../services/service-user.service';
+import { UserDTOResponse } from '../../../domains/UserDTOResponse';
+import { MatIcon } from "@angular/material/icon";
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [LoadingComponent],
+  imports: [LoadingComponent, MatIcon],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
 export class AdminDashboardComponent {
 
   private serviceTasks = inject(ServiceTasksService);
+  private serviceUser = inject(ServiceUserService);
   private router = inject(Router);
 
   loadingCounts = signal<boolean>(true);
@@ -126,6 +131,31 @@ export class AdminDashboardComponent {
 
   addTaskForUser(userId: number) {
     this.router.navigate(['/new-task'], { state: { userId } });
+  }
+
+  deleteUserFromList(user: UserTaskStatsDTO) {
+    if (user.userId.toString() === LocalStorageUtils.getIDFromToken()) {
+      alert("You can't delete your own account.");
+      return;
+    }
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete the user "${user.username}"? This action cannot be undone.`
+    );
+
+    if (isConfirmed) {
+      this.serviceUser.deleteUser(user.userId).subscribe({
+        next: () => {
+          alert(`User "${user.username}" has been deleted.`);
+          this.userStats.update(currentStats =>
+            currentStats.filter(u => u.userId !== user.userId)
+          );
+        },
+        error: (err) => {
+          console.error(`Error deleting user "${user.username}":`, err);
+          alert(`Failed to delete user "${user.username}". Please try again later.`);
+        }
+      });
+    }
   }
 
 }

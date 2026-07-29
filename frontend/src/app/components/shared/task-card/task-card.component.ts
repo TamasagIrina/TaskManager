@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { ServiceTasksService } from '../../../services/service-tasks.service';
 import LocalStorageUtils from '../../../utils/localStorageUtils';
 import { MatIcon } from '@angular/material/icon';
+import { TaskDetailModalComponent } from "../task-detail-modal/task-detail-modal.component";
 
 @Component({
   selector: 'app-task-card',
-  imports: [MatIcon],
+  imports: [MatIcon, TaskDetailModalComponent],
   templateUrl: './task-card.component.html',
   styleUrl: './task-card.component.css'
 })
@@ -16,14 +17,31 @@ export class TaskCardComponent {
 
   @Output() deleteTaskEvent = new EventEmitter<any>();
 
-  role= signal<string>("");
+
+  @Output() taskUpdatedEvent = new EventEmitter<TaskDTOResponse>();
+
+  role = signal<string>("");
 
   router = inject(Router);
 
   serviceTasks = inject(ServiceTasksService);
 
-  ngOnInit(){
+  showModal = signal<boolean>(false);
+
+  ngOnInit() {
     this.role.set(LocalStorageUtils.getRoleFromToken()!);
+  }
+  openDetailModal() {
+    this.showModal.set(true);
+  }
+
+  closeDetailModal() {
+    this.showModal.set(false);
+  }
+
+  onTaskUpdated(updated: TaskDTOResponse) {
+    this.task = updated;
+    this.taskUpdatedEvent.emit(updated);
   }
 
   openEditTaskModal(task: TaskDTOResponse) {
@@ -32,5 +50,5 @@ export class TaskCardComponent {
   onDeleteClick() {
     this.deleteTaskEvent.emit(this.task);
   }
-  
+
 }

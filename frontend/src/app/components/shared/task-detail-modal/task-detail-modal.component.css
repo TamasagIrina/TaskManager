@@ -1,0 +1,156 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.157);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #202433;
+  border-radius: 8px;
+  padding: 24px;
+  width: 420px;
+  max-width: 90vw;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #e7eefb;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.close-btn:hover {
+  color: #e7eefb;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.field-row {
+  padding: 14px 0;
+  border-top: 1px solid #2E3444;
+}
+
+.field-row:first-of-type {
+  border-top: none;
+}
+
+.field-label {
+  color: #56627a;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.field-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-value {
+  font-size: 14px;
+  color: #e7eefb;
+}
+
+.status-badge {
+  background-color: #2E3444;
+  color: #e7eefb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.edit-icon-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.edit-icon-btn:hover {
+  color: #e7eefb;
+  background-color: #2E3444;
+}
+
+.field-edit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-edit select,
+.field-edit input {
+  flex: 1;
+  background-color: #2E3444;
+  border: 1px solid #3b4358;
+  color: #e7eefb;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.save-btn {
+  background-color: #2E3444;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #3b4358;
+}
+
+.save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: transparent;
+  color: #9ca3af;
+}
+
+.cancel-btn:hover {
+  color: #e7eefb;
+}

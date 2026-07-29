@@ -8,7 +8,7 @@ import { AuthRequestDTO } from '../domains/AuthRequestDTO';
   providedIn: 'root'
 })
 export class ServiceUserService {
-  
+
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/users';
 
@@ -16,7 +16,8 @@ export class ServiceUserService {
     return this.http.get<UserDTOResponse[]>(this.apiUrl);
   }
 
-  // deleteUsers(){
-
-  // } 
+  deleteUser(userId: number) {
+    const url = `${this.apiUrl}/${userId}`;
+    return this.http.delete<void>(url);
+  }
 }

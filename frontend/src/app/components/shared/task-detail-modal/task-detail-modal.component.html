@@ -1,0 +1,88 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>{{ task.taskName }}</h2>
+      <button class="close-btn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    @if (error()) {
+      <p class="error-text">{{ error() }}</p>
+    }
+
+    <!-- Status -->
+    <div class="field-row">
+      <div class="field-label">Status</div>
+
+      @if (!editingStatus()) {
+        <div class="field-display">
+          <span class="status-badge">{{ task.statusName }}</span>
+          <button class="edit-icon-btn" (click)="toggleEditStatus()">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="field-edit">
+          <select [(ngModel)]="selectedStatusId" [ngModelOptions]="{standalone: true}">
+            @for (status of statusTypes(); track status.statusTypeId) {
+              <option [value]="status.statusTypeId">{{ status.statusName }}</option>
+            }
+          </select>
+          <button class="save-btn" [disabled]="saving()" (click)="saveStatus()">Save</button>
+          <button class="cancel-btn" (click)="toggleEditStatus()">Cancel</button>
+        </div>
+      }
+    </div>
+
+    <!-- Due date -->
+    <div class="field-row">
+      <div class="field-label">Due date</div>
+
+      @if (!editingDueDate()) {
+        <div class="field-display">
+          <span class="field-value">{{ task.dueDate }}</span>
+          @if (isAdmin()) {
+            <button class="edit-icon-btn" (click)="toggleEditDueDate()">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="field-edit">
+          <input type="date" [(ngModel)]="selectedDueDate" [ngModelOptions]="{standalone: true}">
+          <button class="save-btn" [disabled]="saving()" (click)="saveDueDate()">Save</button>
+          <button class="cancel-btn" (click)="toggleEditDueDate()">Cancel</button>
+        </div>
+      }
+    </div>
+
+    <!-- Assignee -->
+    <div class="field-row">
+      <div class="field-label">Assigned to</div>
+
+      @if (!editingUser()) {
+        <div class="field-display">
+          <span class="field-value">{{ task.username }}</span>
+          @if (isAdmin()) {
+            <button class="edit-icon-btn" (click)="toggleEditUser()">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="field-edit">
+          <select [(ngModel)]="selectedUserId" [ngModelOptions]="{standalone: true}">
+            @for (user of users(); track user.userId) {
+              <option [value]="user.userId">{{ user.username }}</option>
+            }
+          </select>
+          <button class="save-btn" [disabled]="saving()" (click)="saveUser()">Save</button>
+          <button class="cancel-btn" (click)="toggleEditUser()">Cancel</button>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

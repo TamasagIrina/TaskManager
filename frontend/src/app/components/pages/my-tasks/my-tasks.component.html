@@ -41,6 +41,7 @@
         <app-task-card 
         [task]="task"
         (deleteTaskEvent)="deleteTaskFromList($event)"
+        (taskUpdatedEvent)="updateTaskFromList()"
         ></app-task-card>
 
       } @empty {

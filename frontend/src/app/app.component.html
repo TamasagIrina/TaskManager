@@ -3,24 +3,23 @@
     <span class="logo-text">Task Management</span>
   </div>
 
-  @if (email()) {
+  @if (authState.email()) {
   <div class="user-section">
-    <p class="user-info">Logged in as: <span class="username-highlight">{{ email() }}</span></p>
+    <p class="user-info">Logged in as: <span class="username-highlight">{{ authState.email() }}</span></p>
     <button type="button" class="btn-logout" (click)="onLogout()">Logout</button>
   </div>
   }
 </header>
 
-@if (email()) {
+@if (authState.email()) {
 <nav>
   <a routerLink="/home">Home</a>
   <a routerLink="/my-tasks">My Tasks</a>
   <a routerLink="/search">Search</a>
-  @if(role()==="ADMIN"){
+  @if (authState.role() === "ADMIN") {
   <a routerLink="/new-task">New Task</a>
   <a routerLink="/admin-dashboard">Admin Dashboard</a>
   }
-
 </nav>
 }
 

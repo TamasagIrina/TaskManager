@@ -64,12 +64,25 @@
     </div>
 
     <div class="input-group">
+      <label for="reg-confirm-password">Confirm password</label>
+      <div class="password-field">
+        <input [type]="showPassword() ? 'text' : 'password'" id="reg-confirm-password" #regConfirmPassword
+          placeholder="Re-enter your password" (input)="clearError()">
+        <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+          <span class="material-icons">
+            {{ showPassword() ? 'visibility_off' : 'visibility' }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="input-group">
       <label for="reg-birthdate">Date of Birth</label>
       <input type="date" id="reg-birthdate" #regBirthDate (input)="clearError()">
     </div>
 
     <button class="action-btn" [disabled]="isLoading()"
-      (click)="register(regUsername.value, regEmail.value, regPassword.value, regBirthDate.value)">
+      (click)="register(regUsername.value, regEmail.value, regPassword.value,  regConfirmPassword.value, regBirthDate.value)">
       {{ isLoading() ? 'Creating account...' : 'Sign Up' }}
     </button>
   </div>
@@ -77,6 +90,12 @@
   @if (errorMessage()) {
   <div class="error-message">
     <p>{{ errorMessage() }}</p>
+  </div>
+  }
+
+  @if (successMessage()) {
+  <div class="success-message">
+    <p>{{ successMessage() }}</p>
   </div>
   }
 

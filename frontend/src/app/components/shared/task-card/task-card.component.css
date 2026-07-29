@@ -79,9 +79,36 @@ button {
     transition: background-color 0.2s ease;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.manage-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.manage-btn:hover {
+  color: #e7eefb;
+  background-color: #2E3444;
+}
+
+.manage-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 button:hover {
     background-color: #3b4358;
-    /* Un hover subtil mai deschis */
 }
 
 .delete-btn {

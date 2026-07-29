@@ -79,6 +79,7 @@ export class MyTasksComponent implements OnInit {
         //   this.tasks.set(data);
         //   this.loading.set(false);
         // }, 200);
+        console.log(data);
         this.tasks.set(data);
         this.loading.set(false);
   
@@ -111,6 +112,9 @@ export class MyTasksComponent implements OnInit {
     
   }
 
+  updateTaskFromList(){
+    this.getTasks();
+  }
 
   getStatuses() {
     this.serviceStatuses.getStatusTypes().subscribe({

@@ -9,6 +9,7 @@ import { LoginService } from '../../../services/login.service';
 import LocalStorageUtils from '../../../utils/localStorageUtils';
 import { RegisterService } from '../../../services/register.service';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthStateService } from '../../../services/auth-state.service';
 
 @Component({
   selector: 'app-login-register',
@@ -21,13 +22,15 @@ export class LoginRegisterComponent {
   errorMessage = signal<string>('');
   isLoading = signal<boolean>(false);
 
+  successMessage = signal<string>('');
+
   showPassword = signal<boolean>(false);
 
   serviceLogin = inject(LoginService);
 
   serviceRegister = inject(RegisterService);
 
-  appComponent = inject(AppComponent);
+  authState = inject(AuthStateService);
 
   logOrReg: boolean = true;
 
@@ -62,8 +65,7 @@ export class LoginRegisterComponent {
 
         LocalStorageUtils.setItem("user_email", LocalStorageUtils.getEmailFromToken());
 
-        this.appComponent.setEmail();
-
+        this.authState.loadFromStorage();
         this.router.navigate(['/home']);
       },
       error: (error) => {
@@ -75,10 +77,16 @@ export class LoginRegisterComponent {
     });
   }
 
-  register(username: string, email: string, password: string, birthDate: string) {
+  register(username: string, email: string, password: string, confirmPassword: string, birthDate: string) {
+    this.successMessage.set("");
 
-    if (!username || !email || !password || !birthDate) {
+    if (!username || !email || !password || !confirmPassword || !birthDate) {
       this.errorMessage.set('Please fill in all fields.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      this.errorMessage.set('Passwords do not match.');
       return;
     }
 
@@ -93,16 +101,15 @@ export class LoginRegisterComponent {
     };
 
     this.serviceRegister.postRegister(user).subscribe({
-      next: (response: any) => {
+      next: () => {
         this.isLoading.set(false);
+        this.successMessage.set('Account created! Please sign in.');
 
-        LocalStorageUtils.setItem(LocalStorageUtils.tokenKey, response);
+        setTimeout(() => {
+          this.switchToLogin();
+        }, 200);
 
-        LocalStorageUtils.setItem("user_email", LocalStorageUtils.getEmailFromToken());
-        
-        this.appComponent.setEmail();
 
-        this.router.navigate(['/home']);
       },
       error: (error) => {
         this.isLoading.set(false);

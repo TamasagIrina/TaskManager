@@ -1,7 +1,12 @@
 <div class="task-card">
     <div class="task-header">
         <h3 class="task-title">{{ task.taskName }}</h3>
-        <span class="status-badge">{{ task.statusName }}</span>
+        <div class="header-actions">
+            <span class="status-badge">{{ task.statusName }}</span>
+            <button class="manage-btn" (click)="openDetailModal()">
+                <mat-icon>edit</mat-icon>
+            </button>
+        </div>
     </div>
 
     <div class="task-body">
@@ -22,7 +27,12 @@
             <mat-icon>delete</mat-icon>
         </button>
         <button (click)="openEditTaskModal(task)">Edit</button>
-    </div>  
+    </div>
     }
 
 </div>
+
+@if (showModal()) {
+<app-task-detail-modal [task]="task" (closeModal)="closeDetailModal()" (taskUpdated)="onTaskUpdated($event)">
+</app-task-detail-modal>
+}

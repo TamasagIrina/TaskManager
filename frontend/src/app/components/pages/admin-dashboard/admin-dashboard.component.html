@@ -48,7 +48,7 @@
             @for (user of userBars(); track user.userId) {
             @if(user.totalTasks>0){
             <div class="user-bar-row">
-                <span class="user-bar-name">{{ user.username }}</span>
+                <span class="user-bar-name">{{  user.userId +"- " + user.username}}</span>
 
                 <div class="user-bar-track">
                     <div class="user-bar-segment segment-pending" [style.width.%]="user.pendingPct"></div>
@@ -98,9 +98,13 @@
                 <div class="no-tasks-list">
                     @for (user of usersWithoutTasksList(); track user.userId) {
                     <div class="no-tasks-row">
-                        <span class="user-bar-name">{{ user.username }}</span>
+                        <span class="user-bar-name">{{ user.userId +"- " + user.username }}</span>
                         <button class="add-task-btn" (click)="addTaskForUser(user.userId)">
                             + Add task
+                        </button>
+
+                        <button class="delete-btn" (click)="deleteUserFromList(user)">
+                            <mat-icon>delete</mat-icon>
                         </button>
                     </div>
                     }

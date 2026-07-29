@@ -113,34 +113,26 @@ export class ServiceTasksService {
     return this.http.get<TaskDTOResponse[]>(`${this.apiUrl}/user/${id}/due-between`, { params });
   }
 
-  updateTaskUser(taskId: number, userName: string) {
+  updateTaskStatus(taskId: number, statusTypeId: string) {
+    const url = `${this.apiUrl}/${taskId}/status`;
+    const params = new HttpParams().set('statusTypeId', statusTypeId);
+    return this.http.patch<TaskDTOResponse>(url, {}, { params });
+  }
+
+  updateTaskUser(taskId: number, userId: number | null) {
     const url = `${this.apiUrl}/${taskId}/user`;
     let params = new HttpParams();
-    if (userName) {
-      params = params.set('userName', userName);
+    if (userId !== null) {
+      params = params.set('userId', userId.toString());
     }
-    return this.http.patch(url, {}, { params });
+    return this.http.patch<TaskDTOResponse>(url, {}, { params });
   }
 
-  updateTaskStatus(taskId: number, statusName: string) {
-    const url = `${this.apiUrl}/${taskId}/status`;
-
-    let params = new HttpParams();
-    if (statusName) {
-      params = params.set('statusName', statusName);
-    }
-    return this.http.patch(url, {}, { params });
-  }
-
-  updateDueDateTime(taskId: number, dueDateTime: string) {
+  updateDueDateTime(taskId: number, dueDate: string) {
     const url = `${this.apiUrl}/${taskId}/due-date-time`;
-    let params = new HttpParams();
-    if (dueDateTime) {
-      params = params.set('dueDateTime', dueDateTime);
-    }
-    return this.http.patch(url, {}, { params });
+    const params = new HttpParams().set('dueDate', dueDate);
+    return this.http.patch<TaskDTOResponse>(url, {}, { params });
   }
-
   deleteTask(taskId: number) {
     const url = `${this.apiUrl}/${taskId}`;
     return this.http.delete(url);

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, Signal } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import LocalStorageUtils from './utils/localStorageUtils';
+import { AuthStateService } from './services/auth-state.service';
 
 
 @Component({
@@ -12,24 +13,16 @@ import LocalStorageUtils from './utils/localStorageUtils';
 })
 export class AppComponent {
   title = 'TasksFrontEndApp';
-  email = signal<string>("");
 
-  role= signal<string>("");
-
+  authState = inject(AuthStateService);
   router = inject(Router);
 
   ngOnInit() {
-    this.setEmail();
-  }
-
-  setEmail() {
-    this.email.set(LocalStorageUtils.getItem("user_email")!);
-    this.role.set(LocalStorageUtils.getRoleFromToken()!);
+    this.authState.loadFromStorage();
   }
 
   onLogout(): void {
-    LocalStorageUtils.deleteItem(LocalStorageUtils.tokenKey);
-    this.email.set("");
+    this.authState.clear();
     this.router.navigate(['/login-register']);
   }
 }

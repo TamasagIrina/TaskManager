@@ -21,6 +21,7 @@ export class SearchComponent {
 
   availableStatuses = signal<StatusTypeDTO[]>([]);
 
+  isAdmin = signal<boolean>(false);
 
   searchSubject = '';
   searchAssignee = '';
@@ -31,6 +32,7 @@ export class SearchComponent {
   private serviceStatuses = inject(ServiceStatusTypeService);
 
   ngOnInit() {
+    this.isAdmin.set(LocalStorageUtils.getRoleFromToken() === "ADMIN");
     this.getStatuses();
     this.onSearch();
   }
@@ -51,10 +53,6 @@ export class SearchComponent {
       filter.taskName = this.searchSubject;
     }
 
-    if (this.searchAssignee) {
-      filter.username = this.searchAssignee;
-    }
-
     if (this.searchStatus) {
       filter.statusName = this.searchStatus;
     }
@@ -63,7 +61,12 @@ export class SearchComponent {
       filter.dueDateTime = `${this.searchDate}T00:00:00`;
     }
 
-    if (LocalStorageUtils.getRoleFromToken() === "ADMIN") {
+    if (this.isAdmin()) {
+
+      if (this.searchAssignee) {
+        filter.username = this.searchAssignee;
+      }
+
       this.serviceTasks.getFilteredTasks(filter).subscribe({
         next: (data) => {
           this.tasks.set(data);
@@ -75,6 +78,7 @@ export class SearchComponent {
         }
       });
     } else {
+
       const idString = LocalStorageUtils.getIDFromToken();
 
       if (!idString) {
@@ -110,7 +114,7 @@ export class SearchComponent {
     this.searchAssignee = '';
     this.searchStatus = '';
     this.searchDate = '';
-    this.tasks.set([]);
+    this.onSearch()
   }
 
 }
