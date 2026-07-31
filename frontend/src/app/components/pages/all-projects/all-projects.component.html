@@ -1,0 +1,31 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>All Projects</h1>
+      <p>Manage all projects, their members and details.</p>
+    </div>
+    <button class="btn-new" (click)="goToNewProject()">+ New Project</button>
+  </div>
+
+  @if (loading()) {
+  <div class="state-container">
+    <app-loading message="Loading projects..." variant="overlay"></app-loading>
+  </div>
+  } @else if (error()) {
+  <div class="state-container">
+    <p class="error-text">Eroare: {{ error() }}</p>
+  </div>
+  } @else {
+  <div class="projects-container">
+    @for (project of projects(); track project.projectId) {
+    <app-project-card [project]="project" (deleteProjectEvent)="deleteProjectFromList($event)"
+      (projectUpdatedEvent)="updateProjectInList($event)">
+    </app-project-card>
+    } @empty {
+    <div class="state-container empty-state">
+      <p>No projects found.</p>
+    </div>
+    }
+  </div>
+  }
+</div>

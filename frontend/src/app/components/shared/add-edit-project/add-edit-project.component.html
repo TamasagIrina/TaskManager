@@ -1,0 +1,74 @@
+<div class="modal-overlay">
+    <div class="modal-content">
+
+        @if (isEditMode()) {
+        <h2>Edit Project</h2>
+        } @else {
+        <h2>Add New Project</h2>
+        }
+
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmitProjectForm()">
+
+            <div class="form-group">
+                <label>Project Name:</label>
+                <input type="text" formControlName="projectName" placeholder="e.g. Website Redesign">
+            </div>
+
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea formControlName="projectDescription" rows="3"
+                    placeholder="Short description of the project..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Status:</label>
+                <select formControlName="statusTypeId">
+                    @if (isLoadingStatusTypes()) {
+                    <option value="" disabled selected>
+                        <app-loading message="Loading status types..." variant="inline"></app-loading>
+                    </option>
+                    } @else if (errorStatusTypes()) {
+                    <option value="" disabled selected>{{ errorStatusTypes() }}</option>
+                    } @else {
+                    <option value="" disabled selected>Choose a status...</option>
+                    @for (status of statusTypes(); track status.statusTypeId) {
+                    <option [value]="status.statusTypeId">{{ status.statusName }}</option>
+                    }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Members:</label>
+                @if (isLoadingUsers()) {
+                <app-loading message="Loading users..." variant="inline"></app-loading>
+                } @else if (errorUsers()) {
+                <p class="error-text">{{ errorUsers() }}</p>
+                } @else {
+                <div class="members-list">
+                    @for (user of users(); track user.userId) {
+                    <label class="member-item">
+                        <input type="checkbox" [checked]="isMemberSelected(user.userId)"
+                            (change)="toggleMember(user.userId)">
+                        <span>{{ user.username }}</span>
+                    </label>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button" class="btn-cancel" (click)="onCancel()">
+                    Cancel
+                </button>
+
+                <button type="submit" class="btn-submit" [disabled]="projectForm.invalid || isSaving()">
+                    Save
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>

@@ -52,6 +52,39 @@
   border-color: #1a1d27;
 }
 
+.project-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.project-filter label {
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.project-filter select {
+  padding: 8px 14px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #1a1d27;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-filter select:focus {
+  outline: none;
+  border-color: #5C7CFA;
+  box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.2);
+}
+
 .tasks-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

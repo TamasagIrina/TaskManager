@@ -7,10 +7,14 @@ import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
 import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
 import LocalStorageUtils from '../../../utils/localStorageUtils';
+import { ProjectDTO } from '../../../domains/ProjectDTOResponse';
+import { ServiceProjectService } from '../../../services/service-project.service';
+import { TaskFilterDTO } from '../../../domains/TaskFilterDTO';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-my-tasks',
-  imports: [TaskCardComponent, LoadingComponent],
+  imports: [TaskCardComponent, LoadingComponent, FormsModule],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css'
 })
@@ -22,8 +26,12 @@ export class MyTasksComponent implements OnInit {
   availableStatuses = signal<StatusTypeDTO[]>([]);
   activeStatus = '';
 
+  myProjects = signal<ProjectDTO[]>([]);
+  activeProject = '';
+
   private serviceTasks = inject(ServiceTasksService);
   private serviceStatuses = inject(ServiceStatusTypeService);
+  private serviceProjects = inject(ServiceProjectService);
 
   sortedTasks = computed(() => {
 
@@ -39,8 +47,7 @@ export class MyTasksComponent implements OnInit {
   ngOnInit() {
     this.getTasks();
     this.getStatuses();
-
-    console.log(LocalStorageUtils.getIDFromToken());
+    this.getMyProjects();
   }
 
   filterByStatus(status: string) {
@@ -53,11 +60,22 @@ export class MyTasksComponent implements OnInit {
     this.getTasks();
   }
 
+  filterByProject() {
+    this.getTasks();
+  }
+
   getTasks() {
     this.loading.set(true);
     this.error.set(null);
 
-    const filter = this.activeStatus !== '' ? { statusName: this.activeStatus } : {};
+    const filter: TaskFilterDTO = {};
+    if (this.activeStatus !== '') {
+      filter.statusName = this.activeStatus;
+    }
+    if (this.activeProject !== '') {
+      filter.projectName = this.activeProject;
+    }
+
     const idString = LocalStorageUtils.getIDFromToken();
 
     if (!idString) {
@@ -113,9 +131,7 @@ export class MyTasksComponent implements OnInit {
   }
 
   updateTaskFromList(task: TaskDTOResponse){
-    this.tasks.update(currentStats =>
-            currentStats.filter(t => t.taskId !== task.taskId)
-          );
+    this.getTasks();
   }
 
   getStatuses() {
@@ -125,6 +141,27 @@ export class MyTasksComponent implements OnInit {
       },
       error: (err) => {
         this.error.set(err.message);
+      }
+    });
+  }
+
+  getMyProjects() {
+    const idString = LocalStorageUtils.getIDFromToken();
+    if (!idString) {
+      return;
+    }
+
+    const userId = Number(idString);
+    if (Number.isNaN(userId)) {
+      return;
+    }
+
+    this.serviceProjects.getProjectsByMember(userId).subscribe({
+      next: (data) => {
+        this.myProjects.set(data);
+      },
+      error: (err) => {
+        console.error('Eroare la încărcarea proiectelor:', err);
       }
     });
   }

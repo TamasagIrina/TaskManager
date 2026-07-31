@@ -32,22 +32,44 @@
             </div>
 
             <div class="form-group">
-                <label>Assigned to:</label>
-                <select formControlName="userId">
-                    @if (isLoadingUsers()) {
+                <label>Assigned to project:</label>
+                <select formControlName="projectId" (change)="onProjectChange()">
+                    @if (isLoadingProjects()) {
                     <option [ngValue]="0" disabled selected>
-                        <app-loading message="Loading users..." variant="inline"></app-loading>
+                        <app-loading message="Loading projects..." variant="inline"></app-loading>
                     </option>
-                    } @else if (errorUsers()) {
-                    <option [ngValue]="0" disabled selected>{{ errorUsers() }}</option>
+                    } @else if (errorProjects()) {
+                    <option [ngValue]="0" disabled selected>{{ errorProjects() }}</option>
                     } @else {
-                    <option [ngValue]="0" disabled selected>Choose a user...</option>
-                    @for (user of users(); track user.userId) {
-                    <option [value]="user.userId">{{user.userId}} - {{user.username}}</option>
+                    <option [ngValue]="0" disabled selected>Choose a project...</option>
+                    @for (project of projects(); track project.projectId) {
+                    <option [ngValue]="project.projectId">{{project.projectId}} - {{project.projectName}}</option>
                     }
                     }
                 </select>
             </div>
+
+            <div class="form-group">
+                <label>Assigned to:</label>
+                <select formControlName="userId">
+                    @if (!taskForm.controls.projectId.value) {
+                    <option [ngValue]="0" disabled selected>Choose a project first...</option>
+                    } @else if (isLoadingUsers()) {
+                    <option [ngValue]="0" disabled selected>
+                        <app-loading message="Loading members..." variant="inline"></app-loading>
+                    </option>
+                    } @else if (errorUsers()) {
+                    <option [ngValue]="0" disabled selected>{{ errorUsers() }}</option>
+                    } @else {
+                    <option [ngValue]="0" disabled selected>Choose a member...</option>
+                    @for (user of users(); track user.userId) {
+                    <option [ngValue]="user.userId">{{user.userId}} - {{user.username}}</option>
+                    }
+                    }
+                </select>
+            </div>
+
+
 
             <div class="form-group">
                 <label>Due Date:</label>
@@ -65,7 +87,7 @@
                 </button>
                 }
 
-                <button type="submit" class="btn-submit" [disabled]="taskForm.invalid">
+                <button type="submit" class="btn-submit" [disabled]="taskForm.invalid || isSaving()">
                     @if (taskToEdit()) {
                     Update
                     } @else {

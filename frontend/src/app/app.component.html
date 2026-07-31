@@ -15,9 +15,12 @@
 <nav>
   <a routerLink="/home">Home</a>
   <a routerLink="/my-tasks">My Tasks</a>
+  <a routerLink="/my-projects">My Projects</a>
   <a routerLink="/search">Search</a>
-  @if (authState.role() === "ADMIN") {
   <a routerLink="/new-task">New Task</a>
+  @if (authState.role() === "ADMIN") {
+  <a routerLink="/new-project">New Project</a>
+  <a routerLink="/all-projects">Projects</a>
   <a routerLink="/admin-dashboard">Admin Dashboard</a>
   }
 </nav>

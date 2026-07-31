@@ -1,0 +1,27 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>My Projects</h1>
+    <p>Projects you are a member of.</p>
+  </div>
+
+  @if (loading()) {
+  <div class="state-container">
+    <app-loading message="Loading projects..." variant="overlay"></app-loading>
+  </div>
+  } @else if (error()) {
+  <div class="state-container">
+    <p class="error-text">Eroare: {{ error() }}</p>
+  </div>
+  } @else {
+  <div class="projects-container">
+    @for (project of projects(); track project.projectId) {
+    <app-project-card [project]="project" (projectUpdatedEvent)="updateProjectInList($event)">
+    </app-project-card>
+    } @empty {
+    <div class="state-container empty-state">
+      <p>You are not a member of any project yet.</p>
+    </div>
+    }
+  </div>
+  }
+</div>

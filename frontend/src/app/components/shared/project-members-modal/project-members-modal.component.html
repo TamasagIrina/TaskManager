@@ -1,0 +1,32 @@
+<div class="modal-overlay">
+    <div class="modal-content">
+
+        <h2>Add Members — {{ project.projectName }}</h2>
+
+        @if (isLoadingUsers()) {
+        <app-loading message="Loading users..." variant="inline"></app-loading>
+        } @else if (errorUsers()) {
+        <p class="error-text">{{ errorUsers() }}</p>
+        } @else {
+        <div class="members-list">
+            @for (user of users(); track user.userId) {
+            <label class="member-item">
+                <input type="checkbox" [checked]="isSelected(user.userId)" (change)="toggle(user.userId)">
+                <span>{{ user.username }}</span>
+            </label>
+            } @empty {
+            <p class="empty-text">All users are already members of this project.</p>
+            }
+        </div>
+        }
+
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="onClose()">Cancel</button>
+            <button type="button" class="btn-submit" [disabled]="selectedIds().length === 0 || saving()"
+                (click)="onAdd()">
+                Add Selected
+            </button>
+        </div>
+
+    </div>
+</div>

@@ -64,7 +64,7 @@
 
       @if (!editingUser()) {
         <div class="field-display">
-          <span class="field-value">{{ task.username }}</span>
+          <span class="field-value">{{task.userId+" - " + task.username }}</span>
           @if (isAdmin()) {
             <button class="edit-icon-btn" (click)="toggleEditUser()">
               <mat-icon>edit</mat-icon>
@@ -75,7 +75,7 @@
         <div class="field-edit">
           <select [(ngModel)]="selectedUserId" [ngModelOptions]="{standalone: true}">
             @for (user of users(); track user.userId) {
-              <option [value]="user.userId">{{ user.username }}</option>
+              <option [value]="user.userId">{{user.userId+" - "+ user.username }}</option>
             }
           </select>
           <button class="save-btn" [disabled]="saving()" (click)="saveUser()">Save</button>

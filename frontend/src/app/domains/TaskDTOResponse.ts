@@ -5,6 +5,9 @@ export interface TaskDTOResponse {
   statusTypeId: string;
   statusName: string;
 
+  projectId: number;
+  projectName: string;
+
   userId: number;
   username: string;
 

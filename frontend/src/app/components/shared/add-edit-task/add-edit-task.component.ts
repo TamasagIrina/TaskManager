@@ -2,13 +2,15 @@ import { Component, inject, Input, input, output, signal } from '@angular/core';
 import { TaskDTOResponse } from '../../../domains/TaskDTOResponse';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ServiceTasksService } from '../../../services/service-tasks.service';
-import { ServiceUserService } from '../../../services/service-user.service';
 import { ServiceStatusTypeService } from '../../../services/service-status-type.service';
 import { UserDTOResponse } from '../../../domains/UserDTOResponse';
 import { StatusTypeDTO } from '../../../domains/StatusTypeDTO';
 import { TaskCreateDTO } from '../../../domains/TaskDTOCreate';
 import { LoadingComponent } from "../loading/loading.component";
 import { Router } from '@angular/router';
+import { ProjectDTO } from '../../../domains/ProjectDTOResponse';
+import { ServiceProjectService } from '../../../services/service-project.service';
+import LocalStorageUtils from '../../../utils/localStorageUtils';
 
 @Component({
   selector: 'app-add-edit-task',
@@ -29,14 +31,22 @@ export class AddEditTaskComponent {
 
   private fb = inject(FormBuilder);
   private serviceTask = inject(ServiceTasksService);
-  private serviceUser = inject(ServiceUserService);
   private serviceStatusType = inject(ServiceStatusTypeService);
+  private serviceProject = inject(ServiceProjectService);
 
   users = signal<UserDTOResponse[]>([]);
   statusTypes = signal<StatusTypeDTO[]>([]);
+  projects = signal<ProjectDTO[]>([]);
+
+  isAdmin = signal<boolean>(false);
+  isSaving = signal(false);
+  private currentUserId: number | null = null;
 
   isLoadingUsers = signal(false);
   errorUsers = signal<string | null>(null);
+
+  isLoadingProjects = signal(false);
+  errorProjects = signal<string | null>(null);
 
   isLoadingStatusTypes = signal(false);
   errorStatusTypes = signal<string | null>(null);
@@ -44,24 +54,55 @@ export class AddEditTaskComponent {
   taskForm = this.fb.nonNullable.group({
     taskName: ['', [Validators.required, Validators.maxLength(500)]],
     statusTypeId: ['', [Validators.required, Validators.maxLength(255)]],
-    userId: [0, Validators.required],
+    projectId: [0,[Validators.required, Validators.min(1)]],
+    userId: [0, [Validators.required, Validators.min(1)]],
     dueDate: ['', [Validators.required, futureDateValidator()]]
   });
 
   ngOnInit() {
-    this.loadUsers();
-    this.loadStatusTypes();
-    this.getTaskToEdit();
+    this.isAdmin.set(LocalStorageUtils.getRoleFromToken() === 'ADMIN');
+    const idString = LocalStorageUtils.getIDFromToken();
+    this.currentUserId = idString ? Number(idString) : null;
 
+    this.loadStatusTypes();
+    this.loadProjects();
+    this.getTaskToEdit();
   }
 
+  // la schimbarea proiectului, incarca membrii lui in dropdown-ul de assignee
+  onProjectChange() {
+    const projectId = this.taskForm.controls.projectId.value;
 
-  applyPreselectedUser() {
-    if (this.preselectedUserId !== undefined && this.id === undefined) {
-      this.taskForm.patchValue({
-        userId: this.preselectedUserId
-      });
+    this.taskForm.patchValue({ userId: 0 });
+    this.users.set([]);
+    this.errorUsers.set(null);
+
+    if (!projectId || projectId < 1) {
+      return;
     }
+
+    this.loadMembers(projectId);
+  }
+
+  private loadMembers(projectId: number, selectUserId?: number) {
+    this.isLoadingUsers.set(true);
+    this.errorUsers.set(null);
+    this.serviceProject.getProjectMembers(projectId).subscribe({
+      next: (data) => {
+        this.users.set(data);
+        this.isLoadingUsers.set(false);
+
+        const preselect = selectUserId ?? this.preselectedUserId;
+        if (preselect !== undefined && data.some(u => u.userId === Number(preselect))) {
+          this.taskForm.patchValue({ userId: Number(preselect) });
+        }
+      },
+      error: (err) => {
+        this.errorUsers.set('Eroare la încărcarea membrilor proiectului.');
+        this.isLoadingUsers.set(false);
+        console.error(err);
+      }
+    });
   }
 
   getTaskToEdit() {
@@ -74,9 +115,13 @@ export class AddEditTaskComponent {
           this.taskForm.patchValue({
             taskName: data.taskName,
             statusTypeId: data.statusTypeId,
-            userId: data.userId,
+            projectId: data.projectId,
             dueDate: data.dueDate
           });
+
+          if (data.projectId) {
+            this.loadMembers(data.projectId, data.userId);
+          }
         },
         error: (err) => {
           console.error('Eroare la încărcarea taskului:', err);
@@ -91,18 +136,17 @@ export class AddEditTaskComponent {
 
     const formValue = this.taskForm.getRawValue() as TaskCreateDTO;
 
+    this.isSaving.set(true);
 
     if (this.taskToEdit()) {
       this.serviceTask.updateTask(this.taskToEdit()!.taskId, formValue).subscribe({
         next: () => {
-          console.log('Task actualizat cu succes!');
+          this.isSaving.set(false);
           alert('Task actualizat cu succes!');
-
           this.router.navigate(["/my-tasks"]);
-
-
         },
         error: (err) => {
+          this.isSaving.set(false);
           console.error('Eroare la actualizare:', err);
         }
       });
@@ -112,33 +156,16 @@ export class AddEditTaskComponent {
 
       this.serviceTask.addTask(formValue).subscribe({
         next: () => {
-          console.log('Task adăugat cu succes!');
+          this.isSaving.set(false);
           alert('Task adăugat cu succes!');
           this.taskForm.reset();
-
         },
         error: (err) => {
+          this.isSaving.set(false);
           console.error('Eroare la salvare:', err);
         }
       });
     }
-  }
-
-  private loadUsers() {
-    this.isLoadingUsers.set(true);
-    this.errorUsers.set(null);
-    this.serviceUser.getUsers().subscribe({
-      next: (data) => {
-        this.users.set(data);
-        this.isLoadingUsers.set(false);
-        this.applyPreselectedUser();
-      },
-      error: (err) => {
-        this.errorUsers.set('Eroare la încărcarea utilizatorilor.');
-        this.isLoadingUsers.set(false);
-        console.error(err);
-      }
-    });
   }
 
   private loadStatusTypes() {
@@ -155,6 +182,37 @@ export class AddEditTaskComponent {
         console.error(err);
       }
     });
+  }
+
+  private loadProjects() {
+    this.isLoadingProjects.set(true);
+    this.errorProjects.set("");
+
+    // adminul vede toate proiectele; un user vede doar proiectele din care face parte
+    const projects$ = this.isAdmin()
+      ? this.serviceProject.getProjects()
+      : (this.currentUserId !== null
+        ? this.serviceProject.getProjectsByMember(this.currentUserId)
+        : null);
+
+    if (!projects$) {
+      this.errorProjects.set('User ID not found');
+      this.isLoadingProjects.set(false);
+      return;
+    }
+
+    projects$.subscribe({
+      next: (data) => {
+        this.projects.set(data);
+        this.isLoadingProjects.set(false);
+      },
+      error: (err) => {
+        this.errorProjects.set('Eroare la încărcarea proiectelor.');
+        this.isLoadingProjects.set(false);
+        console.error(err);
+      }
+    });
+
   }
 
   onCancel() {

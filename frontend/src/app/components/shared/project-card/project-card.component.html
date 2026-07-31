@@ -1,0 +1,56 @@
+<div class="project-card">
+    <div class="project-header">
+        <h3 class="project-title">{{ project.projectName }}</h3>
+        <div class="header-actions">
+            @if (editingStatus()) {
+            <select class="status-select" [ngModel]="selectedStatusId()"
+                (ngModelChange)="selectedStatusId.set($event)">
+                @for (status of statusTypes(); track status.statusTypeId) {
+                <option [value]="status.statusTypeId">{{ status.statusName }}</option>
+                }
+            </select>
+            <button class="icon-btn" [disabled]="savingStatus() || !selectedStatusId()" (click)="saveStatus()">
+                <mat-icon>check</mat-icon>
+            </button>
+            <button class="icon-btn" (click)="toggleEditStatus()">
+                <mat-icon>close</mat-icon>
+            </button>
+            } @else {
+            <span class="status-badge">{{ project.statusName || 'No status' }}</span>
+            <button class="icon-btn" (click)="toggleEditStatus()">
+                <mat-icon>edit</mat-icon>
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="project-body">
+        <div class="info-group description">
+            <span class="label">Description</span>
+            <span class="value">{{ project.projectDescription || '—' }}</span>
+        </div>
+
+        <div class="info-group">
+            <span class="label">Members</span>
+            <span class="value">{{ (project.memberIds || []).length }}</span>
+        </div>
+    </div>
+
+    @if (isAdmin()) {
+    <div class="project-footer">
+        <button class="delete-btn" (click)="onDeleteClick()">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <div class="footer-actions">
+            <button class="btn-members" (click)="openMembersModal()">Add Members</button>
+            <button (click)="openEditProject()">Edit</button>
+        </div>
+    </div>
+    }
+</div>
+
+@if (showMembersModal()) {
+<app-project-members-modal [project]="project" (closeModal)="closeMembersModal()"
+    (membersAdded)="onMembersAdded($event)">
+</app-project-members-modal>
+}

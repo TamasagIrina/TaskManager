@@ -26,6 +26,7 @@ export class SearchComponent {
   searchSubject = '';
   searchAssignee = '';
   searchStatus = '';
+  searchProject = '';
   searchDate = '';
 
   private serviceTasks = inject(ServiceTasksService);
@@ -55,6 +56,10 @@ export class SearchComponent {
 
     if (this.searchStatus) {
       filter.statusName = this.searchStatus;
+    }
+
+    if (this.searchProject) {
+      filter.projectName = this.searchProject;
     }
 
     if (this.searchDate) {
@@ -113,6 +118,7 @@ export class SearchComponent {
     this.searchSubject = '';
     this.searchAssignee = '';
     this.searchStatus = '';
+    this.searchProject = '';
     this.searchDate = '';
     this.onSearch()
   }

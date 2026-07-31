@@ -33,6 +33,9 @@ export class ServiceTasksService {
     if (filter.username) {
       params = params.set('username', filter.username);
     }
+    if (filter.projectName) {
+      params = params.set('projectName', filter.projectName);
+    }
     if (filter.dueDateTime) {
       params = params.set('dueDateTime', filter.dueDateTime);
     }
@@ -53,6 +56,9 @@ export class ServiceTasksService {
     }
     if (filter.username) {
       params = params.set('username', filter.username);
+    }
+    if (filter.projectName) {
+      params = params.set('projectName', filter.projectName);
     }
     if (filter.dueDateTime) {
       params = params.set('dueDateTime', filter.dueDateTime);

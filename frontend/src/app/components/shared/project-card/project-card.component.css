@@ -1,0 +1,171 @@
+.project-card {
+    border: 1px solid #2E3444;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    height: 90%;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #494865;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge {
+    background-color: #2E3444;
+    color: #e7eefb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-select {
+    padding: 4px 8px;
+    background-color: #e7e9f1;
+    border: 1px solid #93969f;
+    border-radius: 4px;
+    color: #070707;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #9ca3af;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+    color: #e7eefb;
+    background-color: #2E3444;
+}
+
+.icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.icon-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.project-body {
+    display: flex;
+    gap: 32px;
+}
+
+.info-group {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-group.description {
+    flex: 1;
+}
+
+.label {
+    color: #56627a;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+}
+
+.value {
+    font-size: 14px;
+    color: #6e6e7c;
+    word-break: break-word;
+}
+
+.project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #2E3444;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    background-color: #2E3444;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #3b4358;
+}
+
+/* .btn-members {
+    background-color: #5C7CFA;
+}
+
+.btn-members:hover {
+    background-color: #4C6EF5;
+} */
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #9ca3af;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+
+.delete-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}

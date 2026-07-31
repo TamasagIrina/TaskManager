@@ -7,22 +7,33 @@
  
   <div class="filter-tabs">
 
-    <button 
-      class="filter-chip" 
-      [class.active]="activeStatus === ''" 
+    <button
+      class="filter-chip"
+      [class.active]="activeStatus === ''"
       (click)="filterByStatus('')">
       All Tasks
     </button>
-    
-   
+
+
     @for (status of availableStatuses(); track status.statusName) {
-      <button 
-        class="filter-chip" 
-        [class.active]="activeStatus === status.statusName" 
+      <button
+        class="filter-chip"
+        [class.active]="activeStatus === status.statusName"
         (click)="filterByStatus(status.statusName)">
         {{ status.statusName }}
       </button>
     }
+  </div>
+
+
+  <div class="project-filter">
+    <label for="projectFilter">Project</label>
+    <select id="projectFilter" [(ngModel)]="activeProject" (ngModelChange)="filterByProject()">
+      <option value="">All Projects</option>
+      @for (project of myProjects(); track project.projectId) {
+        <option [value]="project.projectName">{{ project.projectName }}</option>
+      }
+    </select>
   </div>
 
 

@@ -1,0 +1,47 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 26px;
+}
+
+.page-header h1 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1a1d27;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.page-header p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0;
+}
+
+.projects-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 0;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+.state-container p {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0;
+}
+
+.error-text {
+  color: #ef4444 !important;
+}
