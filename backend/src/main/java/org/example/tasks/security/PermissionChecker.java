@@ -3,8 +3,10 @@ package org.example.tasks.security;
 import lombok.AllArgsConstructor;
 import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.model.Permission;
+import org.example.tasks.model.Project;
 import org.example.tasks.model.Task;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.ProjectRepository;
 import org.example.tasks.repository.TaskRepository;
 import org.example.tasks.repository.UserRepository;
 import org.example.tasks.service.CurrentUserService;
@@ -24,6 +26,7 @@ public class PermissionChecker {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
     private final CurrentUserService currentUserService;
 
@@ -67,6 +70,29 @@ public class PermissionChecker {
         }
         boolean isAdmin = principal.getRole().getRoleName().equals("ADMIN");
         return isAdmin;
+    }
+
+    public boolean isProjectMemberOrAdmin(Long projectId) {
+        if (isAdmin()) {
+            return true;
+        }
+
+        if (projectId == null) {
+            return false;
+        }
+
+        User principal = currentUserService.getCurrentUser();
+        if (principal == null) {
+            return false;
+        }
+
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null || project.getMembers() == null) {
+            return false;
+        }
+
+        return project.getMembers().stream()
+                .anyMatch(u -> u.getUserId().equals(principal.getUserId()));
     }
 
     public boolean isCurrentUserTaskOwnerOrAdmin(Long taskId) {

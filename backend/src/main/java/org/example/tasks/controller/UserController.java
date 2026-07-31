@@ -83,7 +83,7 @@ public class UserController {
 
 
     @DeleteMapping("/{oldUserId}/reassign-to/{newUserId}")
-    @PreAuthorize("@permissionChecker.checkPermission('users', 'delete')")
+    @PreAuthorize("@permissionChecker.isAdmin()")
     public ResponseEntity<Void> reassignToUser(@PathVariable Long oldUserId, @PathVariable Long newUserId) {
         userService.reassignAndDeleteUser(oldUserId, newUserId);
         return ResponseEntity.noContent().build();

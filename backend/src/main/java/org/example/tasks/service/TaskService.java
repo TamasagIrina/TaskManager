@@ -1,5 +1,6 @@
 package org.example.tasks.service;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +9,11 @@ import org.example.tasks.dto.request.TaskFilterDTO;
 import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.dto.response.UserTaskStatsDTO;
 import org.example.tasks.mapper.TaskMapper;
+import org.example.tasks.model.Project;
 import org.example.tasks.model.StatusType;
 import org.example.tasks.model.Task;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.ProjectRepository;
 import org.example.tasks.repository.StatusTypeRepository;
 import org.example.tasks.repository.TaskRepository;
 import org.example.tasks.repository.UserRepository;
@@ -31,9 +34,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
     private final StatusTypeRepository statusTypeRepository;
     private final TaskMapper taskMapper;
     private final CurrentUserService currentUserService;
+    private final NotificationService notificationService;
 
     public List<TaskDTO> getTasks() {
         log.info("Getting Tasks: ");
@@ -45,14 +50,31 @@ public class TaskService {
     }
 
 
+    @Transactional
     public List<TaskDTO> addTask(TaskCreateDTO taskCreateDTO) {
+
         Task newTask = taskMapper.toEntity(taskCreateDTO);
+
+        if (newTask.getUser() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Task must have an assigned user");
+        }
+
+        Long userId = newTask.getUser().getUserId();
+
+        Project project = projectRepository.findById(taskCreateDTO.getProjectId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Project not found with id: " + taskCreateDTO.getProjectId()));
+
+        ensureUserIsProjectMember(userId, project);
 
         newTask.setCreatedByFullName(currentUserService.getCurrentUser().getUsername());
 
-        taskRepository.save(newTask);
 
+        taskRepository.save(newTask);
         log.info("Added Task: {} ", newTask);
+
+        notificationService.notifyNewTask(newTask.getUser(), newTask);
 
         return getTasks();
     }
@@ -86,18 +108,31 @@ public class TaskService {
     public TaskDTO updateTaskById(Long id, TaskCreateDTO taskCreateDTO) {
         Task task = getTaskEntityOrThrow(id);
 
+        Long previousUserId = task.getUser() != null ? task.getUser().getUserId() : null;
+
+        User newUser = taskMapper.resolveUser(taskCreateDTO.getUserId());
+        if (newUser != null) {
+            ensureUserIsProjectMember(newUser.getUserId(), task.getProject());
+        }
+
         task.setTaskName(taskCreateDTO.getTaskName());
         task.setStatusType(taskMapper.resolveStatusType(taskCreateDTO.getStatusTypeId()));
-        task.setUser(taskMapper.resolveUser(taskCreateDTO.getUserId()));
+        task.setUser(newUser);
         task.setDueDate(taskCreateDTO.getDueDate());
 
-
         Task saved = taskRepository.save(task);
+
+        boolean assigneeChanged = newUser != null && !newUser.getUserId().equals(previousUserId);
+        if (assigneeChanged) {
+            notificationService.notifyNewTask(task.getUser(), task);
+        }
 
         log.info("Updated Task: {} ", saved);
 
         return taskMapper.toDTO(saved);
     }
+
+
 
 
     public void deleteTaskById(Long id) {
@@ -117,6 +152,7 @@ public class TaskService {
         for (Task task : taskRepository.findByUser_UserId(userId)) {
             if (checkStatus(task, filter)
                     && checkTaskName(task, filter)
+                    && checkProject(task, filter)
                     && checkDueDateTime(task, filter)) {
                 result.add(taskMapper.toDTO(task));
             }
@@ -134,6 +170,7 @@ public class TaskService {
             if (checkStatus(task, filter)
                     && checkTaskName(task, filter)
                     && checkUser(task, filter)
+                    && checkProject(task, filter)
                     && checkDueDateTime(task, filter)) {
                 result.add(taskMapper.toDTO(task));
             }
@@ -175,6 +212,19 @@ public class TaskService {
                 && filter.getUsername().equalsIgnoreCase(task.getUser().getUsername());
     }
 
+    // verifica daca numele proiectului contine textul cautat
+    private boolean checkProject(Task task, TaskFilterDTO filter) {
+
+        if (filter.getProjectName() == null) {
+            return true;
+        }
+
+        return task.getProject() != null
+                && task.getProject().getProjectName() != null
+                && task.getProject().getProjectName().toLowerCase()
+                        .contains(filter.getProjectName().toLowerCase());
+    }
+
     // verifica daca data limita corespunde filtrului
     private boolean checkDueDateTime(Task task, TaskFilterDTO filter) {
 
@@ -206,9 +256,19 @@ public class TaskService {
         Task task = getTaskEntityOrThrow(id);
         User user = getUserEntityOrThrow(userId);
 
-        task.setUser(user);
+        Long previousUserId = task.getUser() != null ? task.getUser().getUserId() : null;
+        boolean assigneeChanged = !user.getUserId().equals(previousUserId);
+        if (assigneeChanged) {
+            ensureUserIsProjectMember(userId, task.getProject());
+        }
 
+        task.setUser(user);
         Task saved = taskRepository.save(task);
+
+        if (assigneeChanged) {
+            notificationService.notifyNewTask(task.getUser(), task);
+        }
+
         return taskMapper.toDTO(saved);
     }
 
@@ -293,4 +353,22 @@ public class TaskService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Status type not found with id: " + id));
     }
+
+    // verifica ca userul asignat este membru al proiectului
+    private void ensureUserIsProjectMember(Long userId, Project project) {
+        if (project == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Task must belong to a project");
+        }
+
+        boolean isMember = project.getMembers() != null && project.getMembers().stream()
+                .anyMatch(u -> u.getUserId().equals(userId));
+
+        if (!isMember) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User " + userId + " is not a member of project " + project.getProjectId());
+        }
+    }
+
+
 }

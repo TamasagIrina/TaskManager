@@ -84,12 +84,14 @@ public class TaskController {
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
             @RequestParam(required = false) String username,
+            @RequestParam(required = false) String projectName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
                 .statusName(statusName)
                 .username(username)
+                .projectName(projectName)
                 .dueDateTime(dueDateTime)
                 .build();
 
@@ -102,11 +104,13 @@ public class TaskController {
             @PathVariable Long id,
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
+            @RequestParam(required = false) String projectName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
                 .statusName(statusName)
+                .projectName(projectName)
                 .dueDateTime(dueDateTime)
                 .build();
 

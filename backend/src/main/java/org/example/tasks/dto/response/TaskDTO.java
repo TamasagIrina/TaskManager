@@ -19,6 +19,9 @@ public class TaskDTO {
     private String statusTypeId;
     private String statusName;
 
+    private Long projectId;
+    private String projectName;
+
     private Long userId;
     private String username;
 

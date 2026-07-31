@@ -3,9 +3,11 @@ package org.example.tasks.mapper;
 import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.response.TaskDTO;
+import org.example.tasks.model.Project;
 import org.example.tasks.model.StatusType;
 import org.example.tasks.model.Task;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.ProjectRepository;
 import org.example.tasks.repository.StatusTypeRepository;
 import org.example.tasks.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ public class TaskMapper {
 
     private final StatusTypeRepository statusTypeRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
     // Entitate -> DTO de raspuns
     public TaskDTO toDTO(Task task) {
@@ -39,6 +42,11 @@ public class TaskMapper {
                     .username(task.getUser().getUsername());
         }
 
+        if (task.getProject() != null) {
+            builder.projectId(task.getProject().getProjectId())
+                    .projectName(task.getProject().getProjectName());
+        }
+
         return builder.build();
     }
 
@@ -48,6 +56,7 @@ public class TaskMapper {
                 .taskName(taskCreateDTO.getTaskName())
                 .statusType(resolveStatusType(taskCreateDTO.getStatusTypeId()))
                 .user(resolveUser(taskCreateDTO.getUserId()))
+                .project(resolveProject(taskCreateDTO.getProjectId()))
                 .dueDate(taskCreateDTO.getDueDate())
                 .build();
     }
@@ -70,5 +79,15 @@ public class TaskMapper {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Nu a fost gasit niciun user cu id-ul: " + userId));
+    }
+
+
+    public Project resolveProject(Long projectId) {
+        if (projectId == null) {
+            return null;
+        }
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Nu a fost gasit niciun proiect cu id-ul: " + projectId));
     }
 }

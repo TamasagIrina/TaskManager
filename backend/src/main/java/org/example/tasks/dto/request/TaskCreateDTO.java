@@ -1,9 +1,6 @@
 package org.example.tasks.dto.request;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -25,6 +22,9 @@ public class TaskCreateDTO {
     private String statusTypeId;
 
     private Long userId;
+
+    @NotNull
+    private Long projectId;
 
     @Future
     private LocalDate dueDate;

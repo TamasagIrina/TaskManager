@@ -22,7 +22,7 @@ public class RegisterService {
 
     private final UserRepository userRepository;
 
-    private final JwtService jwtService;
+    private final  EmailService emailService;
 
     private final UserMapper userMapper;
 
@@ -63,8 +63,21 @@ public class RegisterService {
         if (savedUser.getUserId() == null || savedUser.getUserId() == 0) {
             return new ResponseEntity<>("500: Failed to save user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
+        emailService.sendConfirmationEmail(savedUser.getEmail(), savedUser.getUsername());
         return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<String> confirmAccount(String hashEmail) {
+        String email = new String(Base64.getDecoder().decode(hashEmail));
+
+        User existingUser = userRepository.findByEmail(email);
+        if (existingUser != null) {
+            existingUser.setEmailConfirmed(true);
+            userRepository.save(existingUser);
+        }else {
+            return new ResponseEntity<>("500: Failed to found user - " , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("User email successfully confirmed", HttpStatus.CREATED);
     }
 
 

@@ -40,6 +40,10 @@ public class User extends Auditable {
     @Column(name = "IS_INTERNAL", nullable = false)
     private Boolean isInternal;
 
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "email_confirmed ", nullable = false)
+    private Boolean emailConfirmed;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "users_role_fk"))
     private Role role;

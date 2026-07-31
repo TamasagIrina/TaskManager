@@ -21,4 +21,10 @@ public class RegisterController {
     public ResponseEntity<String> register(@RequestBody UserCreateDTO userCreateDTO) throws JoseException {
         return registerService.register(userCreateDTO);
     }
+
+    @GetMapping("/confirm")
+    public ResponseEntity<String> confirm(@RequestParam String hashEmail) {
+        return registerService.confirmAccount(hashEmail);
+
+    }
 }

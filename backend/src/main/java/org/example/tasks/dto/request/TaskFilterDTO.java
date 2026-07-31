@@ -15,5 +15,6 @@ public class TaskFilterDTO {
     private String taskName;
     private String statusName;
     private String username;
+    private String projectName;
     private LocalDateTime dueDateTime;
 }
