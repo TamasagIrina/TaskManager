@@ -29,6 +29,10 @@ export class MyTasksComponent implements OnInit {
   myProjects = signal<ProjectDTO[]>([]);
   activeProject = '';
 
+  currentPage = signal(0);
+  totalPages = signal(0);
+  pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i));
+
   private serviceTasks = inject(ServiceTasksService);
   private serviceStatuses = inject(ServiceStatusTypeService);
   private serviceProjects = inject(ServiceProjectService);
@@ -57,10 +61,20 @@ export class MyTasksComponent implements OnInit {
     }
 
     this.activeStatus = status;
+    this.currentPage.set(0);
     this.getTasks();
   }
 
   filterByProject() {
+    this.currentPage.set(0);
+    this.getTasks();
+  }
+
+  goToPage(page: number) {
+    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
     this.getTasks();
   }
 
@@ -91,16 +105,18 @@ export class MyTasksComponent implements OnInit {
       return;
     }
 
-    this.serviceTasks.getFilteredUserTasks(userId, filter).subscribe({
+    this.serviceTasks.getFilteredUserTasks(userId, filter, this.currentPage()).subscribe({
       next: (data) => {
-        // setTimeout(() => {
-        //   this.tasks.set(data);
-        //   this.loading.set(false);
-        // }, 200);
-        console.log(data);
-        this.tasks.set(data);
+        // daca pagina curenta a ramas goala (ex. dupa delete), sari pe ultima pagina valida
+        if (data.content.length === 0 && data.totalPages > 0 && this.currentPage() > data.totalPages - 1) {
+          this.currentPage.set(data.totalPages - 1);
+          this.getTasks();
+          return;
+        }
+
+        this.tasks.set(data.content);
+        this.totalPages.set(data.totalPages);
         this.loading.set(false);
-  
       },
       error: (err) => {
         this.error.set(err.message);
@@ -116,10 +132,7 @@ export class MyTasksComponent implements OnInit {
       this.serviceTasks.deleteTask(task.taskId).subscribe({
         next: () => {
           alert(`Task "${task.taskName}" has been deleted.`);
-          
-          this.tasks.update(currentTasks => 
-            currentTasks.filter(t => t.taskId !== task.taskId)
-          );
+          this.getTasks();
         },
         error: (err) => { 
           console.error(`Error deleting task "${task.taskName}":`, err);

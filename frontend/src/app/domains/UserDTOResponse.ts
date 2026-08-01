@@ -6,4 +6,6 @@ export interface UserDTOResponse {
   isInternal: boolean;
   createdBy: string;
   creationDate: string;
+  roleId?: number;
+  roleName?: string;
 }

@@ -4,6 +4,7 @@ import { TaskDTOResponse } from '../domains/TaskDTOResponse';
 import { TaskCreateDTO } from '../domains/TaskDTOCreate';
 import { TaskFilterDTO } from '../domains/TaskFilterDTO';
 import { UserTaskStatsDTO } from '../domains/UserTaskStatsDTO';
+import { PageResponse } from '../domains/PageResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +22,10 @@ export class ServiceTasksService {
     return this.http.get<TaskDTOResponse>(url);
   }
 
-  getFilteredTasks(filter: TaskFilterDTO = {}) {
-    let params = new HttpParams();
+  getFilteredTasks(filter: TaskFilterDTO = {}, page: number = 0, size: number = 8) {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
 
     if (filter.taskName) {
       params = params.set('taskName', filter.taskName);
@@ -42,11 +45,13 @@ export class ServiceTasksService {
 
     const url = `${this.apiUrl}/filter`;
 
-    return this.http.get<TaskDTOResponse[]>(url, { params });
+    return this.http.get<PageResponse<TaskDTOResponse>>(url, { params });
   }
 
-  getFilteredUserTasks(id: number, filter: TaskFilterDTO = {}) {
-    let params = new HttpParams();
+  getFilteredUserTasks(id: number, filter: TaskFilterDTO = {}, page: number = 0, size: number = 8) {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
 
     if (filter.taskName) {
       params = params.set('taskName', filter.taskName);
@@ -66,7 +71,7 @@ export class ServiceTasksService {
 
     const url = `${this.apiUrl}/filter-tasks-user/${id}`;
 
-    return this.http.get<TaskDTOResponse[]>(url, { params });
+    return this.http.get<PageResponse<TaskDTOResponse>>(url, { params });
   }
 
   getTaskCount(statusName?: string) {

@@ -1,0 +1,38 @@
+<div class="modal-overlay">
+    <div class="modal-content">
+
+        <h2>Delete &amp; reassign tasks</h2>
+
+        <p class="modal-subtitle">
+            All tasks of <strong>{{ username }}</strong> will be reassigned to the user you pick below, and then this
+            account will be permanently deleted.
+        </p>
+
+        <div class="form-group">
+            <label>Reassign tasks to</label>
+            @if (loading()) {
+            <app-loading message="Loading users..." variant="inline"></app-loading>
+            } @else {
+            <select [ngModel]="selectedTargetId()" (ngModelChange)="selectedTargetId.set($event)">
+                <option [ngValue]="null" disabled selected>Choose a user...</option>
+                @for (user of users(); track user.userId) {
+                <option [ngValue]="user.userId">{{ user.userId }} - {{ user.username }}</option>
+                }
+            </select>
+        }
+        </div>
+
+        @if (error()) {
+        <p class="error-text">{{ error() }}</p>
+        }
+
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="onClose()">Cancel</button>
+            <button type="button" class="btn-danger" [disabled]="selectedTargetId() === null || saving()"
+                (click)="confirm()">
+                Reassign &amp; delete
+            </button>
+        </div>
+
+    </div>
+</div>

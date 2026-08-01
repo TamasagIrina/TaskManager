@@ -50,6 +50,29 @@
             <div class="user-bar-row">
                 <span class="user-bar-name">{{  user.userId +"- " + user.username}}</span>
 
+                <span class="user-role">
+                    @if (editingRoleUserId() === user.userId) {
+                    <select class="role-select" [ngModel]="selectedRoleId()"
+                        (ngModelChange)="selectedRoleId.set($event)">
+                        @for (role of roles(); track role.roleId) {
+                        <option [ngValue]="role.roleId">{{ role.roleName }}</option>
+                        }
+                    </select>
+                    <button class="icon-btn" [disabled]="savingRole() || selectedRoleId() === null"
+                        (click)="saveRole(user.userId)">
+                        <mat-icon>check</mat-icon>
+                    </button>
+                    <button class="icon-btn" (click)="cancelEditRole()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    } @else {
+                    <span class="role-badge">{{ roleFor(user.userId) }}</span>
+                    <button class="icon-btn" (click)="startEditRole(user.userId)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    }
+                </span>
+
                 <div class="user-bar-track">
                     <div class="user-bar-segment segment-pending" [style.width.%]="user.pendingPct"></div>
                     <div class="user-bar-segment segment-progress" [style.width.%]="user.inProgressPct"></div>
@@ -61,6 +84,10 @@
 
                 <button class="add-task-btn" (click)="addTaskForUser(user.userId)">
                     + Add task
+                </button>
+
+                <button class="reassign-btn" (click)="openReassignModal(user)">
+                    Delete &amp; reassign
                 </button>
 
             </div>
@@ -116,6 +143,15 @@
         }
     </div>
 
+    }
+
+    @if (reassignUser(); as ru) {
+    <app-reassing-task-delete-user-modal
+        [userId]="ru.userId"
+        [username]="ru.username"
+        (closeModal)="closeReassignModal()"
+        (reassigned)="onUserReassigned($event)">
+    </app-reassing-task-delete-user-modal>
     }
 
 </div>

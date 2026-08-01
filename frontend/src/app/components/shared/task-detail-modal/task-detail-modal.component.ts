@@ -8,6 +8,7 @@ import { UserDTOResponse } from '../../../domains/UserDTOResponse';
 import LocalStorageUtils from '../../../utils/localStorageUtils';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { ServiceProjectService } from '../../../services/service-project.service';
 
 @Component({
   selector: 'app-task-detail-modal',
@@ -22,7 +23,7 @@ export class TaskDetailModalComponent {
   @Output() taskUpdated = new EventEmitter<TaskDTOResponse>();
 
   private serviceTasks = inject(ServiceTasksService);
-  private serviceUser = inject(ServiceUserService);
+  private serviceProject = inject(ServiceProjectService);
   private serviceStatusType = inject(ServiceStatusTypeService);
 
   isAdmin = signal<boolean>(false);
@@ -61,7 +62,7 @@ export class TaskDetailModalComponent {
   }
 
   loadUsers() {
-    this.serviceUser.getUsers().subscribe({
+    this.serviceProject.getProjectMembers(this.task.projectId).subscribe({
       next: (data) => this.users.set(data),
       error: (err) => console.error('Error loading users', err)
     });
