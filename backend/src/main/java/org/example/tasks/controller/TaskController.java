@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
+import org.example.tasks.dto.response.PageResponse;
 import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.dto.response.UserTaskStatsDTO;
 import org.example.tasks.security.UserPrincipal;
@@ -80,12 +81,14 @@ public class TaskController {
 
     @GetMapping("/filter")
     @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter') and @permissionChecker.isAdmin()")
-    public List<TaskDTO> filterTasks(
+    public PageResponse<TaskDTO> filterTasks(
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String projectName,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
@@ -95,17 +98,19 @@ public class TaskController {
                 .dueDateTime(dueDateTime)
                 .build();
 
-        return taskService.filterTasks(filter);
+        return taskService.filterTasks(filter, page, size);
     }
 
     @GetMapping("/filter-tasks-user/{id}")
     @PreAuthorize("@permissionChecker.checkPermission('tasks', 'filter by user id') and @permissionChecker.isSelfOrAdmin(#id)")
-    public List<TaskDTO> filterTasksUser(
+    public PageResponse<TaskDTO> filterTasksUser(
             @PathVariable Long id,
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) String statusName,
             @RequestParam(required = false) String projectName,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
@@ -114,7 +119,7 @@ public class TaskController {
                 .dueDateTime(dueDateTime)
                 .build();
 
-        return taskService.filterTasksUser(id, filter);
+        return taskService.filterTasksUser(id, filter, page, size);
     }
 
     @PatchMapping("/{id}/status")

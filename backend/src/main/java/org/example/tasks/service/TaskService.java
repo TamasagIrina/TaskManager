@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tasks.dto.request.TaskCreateDTO;
 import org.example.tasks.dto.request.TaskFilterDTO;
+import org.example.tasks.dto.response.PageResponse;
 import org.example.tasks.dto.response.TaskDTO;
 import org.example.tasks.dto.response.UserTaskStatsDTO;
 import org.example.tasks.mapper.TaskMapper;
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -144,8 +146,8 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    // filtreaza task-urile user-ului in functie de criteriile primite
-    public List<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter) {
+    // filtreaza task-urile user-ului in functie de criteriile primite (paginat)
+    public PageResponse<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter, int page, int size) {
 
         List<TaskDTO> result = new ArrayList<>();
 
@@ -158,11 +160,11 @@ public class TaskService {
             }
         }
 
-        return result;
+        return paginate(sortByDueDate(result), page, size);
     }
 
-    // filtreaza task-urile in functie de criteriile primite
-    public List<TaskDTO> filterTasks(TaskFilterDTO filter) {
+    // filtreaza task-urile in functie de criteriile primite (paginat)
+    public PageResponse<TaskDTO> filterTasks(TaskFilterDTO filter, int page, int size) {
 
         List<TaskDTO> result = new ArrayList<>();
 
@@ -176,7 +178,30 @@ public class TaskService {
             }
         }
 
-        return result;
+        return paginate(sortByDueDate(result), page, size);
+    }
+
+    // sortare stabila dupa due date (nulls last), apoi dupa id, ca paginile sa fie consistente
+    private List<TaskDTO> sortByDueDate(List<TaskDTO> tasks) {
+        tasks.sort(Comparator
+                .comparing(TaskDTO::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(TaskDTO::getTaskId, Comparator.nullsLast(Comparator.naturalOrder())));
+        return tasks;
+    }
+
+    // taie lista intr-o pagina si construieste metadatele
+    private PageResponse<TaskDTO> paginate(List<TaskDTO> all, int page, int size) {
+        int pageSize = size <= 0 ? 8 : size;
+        int currentPage = Math.max(page, 0);
+
+        int total = all.size();
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+
+        int from = Math.min(currentPage * pageSize, total);
+        int to = Math.min(from + pageSize, total);
+
+        List<TaskDTO> content = new ArrayList<>(all.subList(from, to));
+        return new PageResponse<>(content, currentPage, pageSize, total, totalPages);
     }
 
     // verifica daca statusul task-ului corespunde filtrului

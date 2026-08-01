@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.tasks.dto.request.AuthRequest;
 import org.example.tasks.dto.request.UserCreateDTO;
 import org.example.tasks.dto.response.AuthResponse;
+import org.example.tasks.dto.response.RoleDTO;
 import org.example.tasks.dto.response.UserDTO;
 import org.example.tasks.model.User;
 import org.example.tasks.service.UserService;
@@ -87,5 +88,17 @@ public class UserController {
     public ResponseEntity<Void> reassignToUser(@PathVariable Long oldUserId, @PathVariable Long newUserId) {
         userService.reassignAndDeleteUser(oldUserId, newUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/roles")
+    @PreAuthorize("@permissionChecker.isAdmin()")
+    public List<RoleDTO> getAllRoles() {
+        return userService.getAllRoles();
+    }
+
+    @PatchMapping("/{userId}/role")
+    @PreAuthorize("@permissionChecker.isAdmin()")
+    public UserDTO updateRole(@PathVariable Long userId, @RequestParam Long roleId) {
+        return userService.updateRole(userId, roleId);
     }
 }

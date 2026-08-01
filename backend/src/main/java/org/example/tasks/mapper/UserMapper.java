@@ -9,15 +9,21 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
     // Entitate -> DTO de raspuns
     public UserDTO toDTO(User user) {
-        return UserDTO.builder()
+        UserDTO.UserDTOBuilder builder = UserDTO.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .birthDate(user.getBirthDate())
                 .isInternal(user.getIsInternal())
                 .createdBy(user.getCreatedBy())
-                .creationDate(user.getCreationDate())
-                .build();
+                .creationDate(user.getCreationDate());
+
+        if (user.getRole() != null) {
+            builder.roleId(user.getRole().getRoleId())
+                    .roleName(user.getRole().getRoleName());
+        }
+
+        return builder.build();
     }
 
     // DTO de request -> Entitate

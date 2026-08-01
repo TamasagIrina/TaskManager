@@ -8,12 +8,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tasks.dto.request.AuthRequest;
 import org.example.tasks.dto.request.UserCreateDTO;
 import org.example.tasks.dto.response.AuthResponse;
+import org.example.tasks.dto.response.RoleDTO;
 import org.example.tasks.dto.response.UserDTO;
 import org.example.tasks.mapper.UserMapper;
+import org.example.tasks.model.Project;
+import org.example.tasks.model.Role;
 import org.example.tasks.model.Task;
 import org.example.tasks.model.User;
+import org.example.tasks.repository.ProjectRepository;
+import org.example.tasks.repository.RoleRepository;
 import org.example.tasks.repository.TaskRepository;
 import org.example.tasks.repository.UserRepository;
+
+import java.util.ArrayList;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,6 +35,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
+    private final RoleRepository roleRepository;
     private final CurrentUserService currentUserService;
 
     public List<UserDTO> getAllUsers() {
@@ -131,6 +140,23 @@ public class UserService {
         User newUser = userRepository.findById(newUserId)
                 .orElseThrow(() -> new EntityNotFoundException("User-ul nou nu a fost gasit"));
 
+
+        // scoate userul vechi din proiecte; adauga userul nou ca membru
+        // (ca task-urile reasignate sa ramana valide - assignee-ul trebuie sa fie membru)
+        List<Project> projects = projectRepository.findByMemberId(oldUserId);
+        for (Project project : projects) {
+            List<User> members = project.getMembers();
+            boolean newAlreadyMember = members.stream()
+                    .anyMatch(u -> u.getUserId().equals(newUserId));
+            if (!newAlreadyMember) {
+                members.add(newUser);
+            }
+            members.removeIf(u -> u.getUserId().equals(oldUserId));
+        }
+        // flush explicit: sterge randurile din PROJECT_MEMBERS inainte de delete users
+        projectRepository.saveAllAndFlush(projects);
+
+        // reasigneaza task-urile de la userul vechi la cel nou
         List<Task> tasks = taskRepository.findByUser_UserId(oldUserId);
         tasks.forEach(t -> t.setUser(newUser));
         taskRepository.saveAll(tasks);
@@ -140,5 +166,27 @@ public class UserService {
 
     public boolean existsById(Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    @Transactional
+    public UserDTO updateRole(Long userId, Long roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Nu a fost gasit niciun user cu id-ul: " + userId));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Nu a fost gasit niciun rol cu id-ul: " + roleId));
+
+        user.setRole(role);
+        User saved = userRepository.save(user);
+        return userMapper.toDTO(saved);
+    }
+
+    public List<RoleDTO> getAllRoles() {
+        List<RoleDTO> roles = new ArrayList<>();
+        roleRepository.findAll()
+                .forEach(r -> roles.add(new RoleDTO(r.getRoleId(), r.getRoleName())));
+        return roles;
     }
 }

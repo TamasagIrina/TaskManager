@@ -18,4 +18,6 @@ public class UserDTO {
     private Boolean isInternal;
     private String createdBy;
     private LocalDateTime creationDate;
+    private Long roleId;
+    private String roleName;
 }
