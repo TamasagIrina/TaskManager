@@ -22,10 +22,13 @@ export class ServiceTasksService {
     return this.http.get<TaskDTOResponse>(url);
   }
 
-  getFilteredTasks(filter: TaskFilterDTO = {}, page: number = 0, size: number = 8) {
+  getFilteredTasks(filter: TaskFilterDTO = {}, page: number = 0, size: number = 8,
+    sortBy: string = 'id', sortDir: string = 'asc') {
     let params = new HttpParams()
       .set('page', page)
-      .set('size', size);
+      .set('size', size)
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
 
     if (filter.taskName) {
       params = params.set('taskName', filter.taskName);
@@ -48,10 +51,13 @@ export class ServiceTasksService {
     return this.http.get<PageResponse<TaskDTOResponse>>(url, { params });
   }
 
-  getFilteredUserTasks(id: number, filter: TaskFilterDTO = {}, page: number = 0, size: number = 8) {
+  getFilteredUserTasks(id: number, filter: TaskFilterDTO = {}, page: number = 0, size: number = 8,
+    sortBy: string = 'id', sortDir: string = 'asc') {
     let params = new HttpParams()
       .set('page', page)
-      .set('size', size);
+      .set('size', size)
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
 
     if (filter.taskName) {
       params = params.set('taskName', filter.taskName);

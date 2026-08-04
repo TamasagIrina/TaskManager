@@ -56,6 +56,18 @@
     </div>
   </div>
 
+  <div class="sort-bar">
+    <span class="sort-label">Sort by:</span>
+    @for (opt of visibleSortOptions(); track opt.field) {
+    <button class="sort-chip" [class.active]="sortField() === opt.field" (click)="setSort(opt.field)">
+      {{ opt.label }}
+      @if (sortField() === opt.field) {
+      <span class="sort-arrow">{{ sortDir() === 'asc' ? '↑' : '↓' }}</span>
+      }
+    </button>
+    }
+  </div>
+
   @if (loading()) {
   <div class="state-container">
     <app-loading message="Searching..." variant="overlay"></app-loading>

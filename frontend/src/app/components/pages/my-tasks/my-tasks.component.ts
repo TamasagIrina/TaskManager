@@ -33,20 +33,16 @@ export class MyTasksComponent implements OnInit {
   totalPages = signal(0);
   pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i));
 
+  sortOptions = [
+    { field: 'id', label: 'Id' },
+    { field: 'taskName', label: 'Task name' }
+  ];
+  sortField = signal<string>('id');
+  sortDir = signal<'asc' | 'desc'>('asc');
+
   private serviceTasks = inject(ServiceTasksService);
   private serviceStatuses = inject(ServiceStatusTypeService);
   private serviceProjects = inject(ServiceProjectService);
-
-  sortedTasks = computed(() => {
-
-    return [...this.tasks()].sort((a, b) => {
-
-      const dateA = new Date(a.dueDate).getTime();
-      const dateB = new Date(b.dueDate).getTime();
-
-      return dateA - dateB;
-    });
-  });
 
   ngOnInit() {
     this.getTasks();
@@ -78,6 +74,18 @@ export class MyTasksComponent implements OnInit {
     this.getTasks();
   }
 
+  // click pe un camp: daca e deja activ inverseaza directia, altfel selecteaza campul (asc)
+  setSort(field: string) {
+    if (this.sortField() === field) {
+      this.sortDir.update(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDir.set('asc');
+    }
+    this.currentPage.set(0);
+    this.getTasks();
+  }
+
   getTasks() {
     this.loading.set(true);
     this.error.set(null);
@@ -105,7 +113,7 @@ export class MyTasksComponent implements OnInit {
       return;
     }
 
-    this.serviceTasks.getFilteredUserTasks(userId, filter, this.currentPage()).subscribe({
+    this.serviceTasks.getFilteredUserTasks(userId, filter, this.currentPage(), 8, this.sortField(), this.sortDir()).subscribe({
       next: (data) => {
         // daca pagina curenta a ramas goala (ex. dupa delete), sari pe ultima pagina valida
         if (data.content.length === 0 && data.totalPages > 0 && this.currentPage() > data.totalPages - 1) {

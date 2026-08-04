@@ -34,6 +34,18 @@ export class SearchComponent {
   totalPages = signal(0);
   pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i));
 
+  sortOptions = [
+    { field: 'id', label: 'Id' },
+    { field: 'username', label: 'User' },
+    { field: 'taskName', label: 'Task name' }
+  ];
+  // userul normal nu vede sortarea dupa User 
+  visibleSortOptions = computed(() =>
+    this.isAdmin() ? this.sortOptions : this.sortOptions.filter(o => o.field !== 'username')
+  );
+  sortField = signal<string>('id');
+  sortDir = signal<'asc' | 'desc'>('asc');
+
   private serviceTasks = inject(ServiceTasksService);
   private serviceStatuses = inject(ServiceStatusTypeService);
 
@@ -50,7 +62,6 @@ export class SearchComponent {
     });
   }
 
-  // apasare pe Search / Clear -> mereu de la prima pagina
   onSearch() {
     this.currentPage.set(0);
     this.loadTasks();
@@ -61,6 +72,17 @@ export class SearchComponent {
       return;
     }
     this.currentPage.set(page);
+    this.loadTasks();
+  }
+
+  setSort(field: string) {
+    if (this.sortField() === field) {
+      this.sortDir.update(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDir.set('asc');
+    }
+    this.currentPage.set(0);
     this.loadTasks();
   }
 
@@ -93,7 +115,7 @@ export class SearchComponent {
 
     let request$;
     if (this.isAdmin()) {
-      request$ = this.serviceTasks.getFilteredTasks(filter, page);
+      request$ = this.serviceTasks.getFilteredTasks(filter, page, 8, this.sortField(), this.sortDir());
     } else {
       const idString = LocalStorageUtils.getIDFromToken();
       const userId = idString ? Number(idString) : NaN;
@@ -102,7 +124,7 @@ export class SearchComponent {
         this.loading.set(false);
         return;
       }
-      request$ = this.serviceTasks.getFilteredUserTasks(userId, filter, page);
+      request$ = this.serviceTasks.getFilteredUserTasks(userId, filter, page, 8, this.sortField(), this.sortDir());
     }
 
     request$.subscribe({

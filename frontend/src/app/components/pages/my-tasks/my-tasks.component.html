@@ -4,75 +4,82 @@
     <p>Here are your tasks that need to be completed:</p>
   </div>
 
- 
+
   <div class="filter-tabs">
 
-    <button
-      class="filter-chip"
-      [class.active]="activeStatus === ''"
-      (click)="filterByStatus('')">
+    <button class="filter-chip" [class.active]="activeStatus === ''" (click)="filterByStatus('')">
       All Tasks
     </button>
 
 
     @for (status of availableStatuses(); track status.statusName) {
-      <button
-        class="filter-chip"
-        [class.active]="activeStatus === status.statusName"
-        (click)="filterByStatus(status.statusName)">
-        {{ status.statusName }}
-      </button>
+    <button class="filter-chip" [class.active]="activeStatus === status.statusName"
+      (click)="filterByStatus(status.statusName)">
+      {{ status.statusName }}
+    </button>
     }
+
+
+    <div class="project-filter">
+      <label for="projectFilter">Project</label>
+      <select id="projectFilter" [(ngModel)]="activeProject" (ngModelChange)="filterByProject()">
+        <option value="">All Projects</option>
+        @for (project of myProjects(); track project.projectId) {
+        <option [value]="project.projectName">{{ project.projectName }}</option>
+        }
+      </select>
+    </div>
   </div>
 
 
-  <div class="project-filter">
-    <label for="projectFilter">Project</label>
-    <select id="projectFilter" [(ngModel)]="activeProject" (ngModelChange)="filterByProject()">
-      <option value="">All Projects</option>
-      @for (project of myProjects(); track project.projectId) {
-        <option [value]="project.projectName">{{ project.projectName }}</option>
+
+
+  <div class="sort-bar">
+    <span class="sort-label">Sort by:</span>
+    @for (opt of sortOptions; track opt.field) {
+    <button class="sort-chip" [class.active]="sortField() === opt.field" (click)="setSort(opt.field)">
+      {{ opt.label }}
+      @if (sortField() === opt.field) {
+      <span class="sort-arrow">{{ sortDir() === 'asc' ? '↑' : '↓' }}</span>
       }
-    </select>
+    </button>
+    }
   </div>
 
 
   @if (loading()) {
-    <div class="state-container">
-      <app-loading message="Loading tasks..." variant="overlay"></app-loading>
-    </div>
+  <div class="state-container">
+    <app-loading message="Loading tasks..." variant="overlay"></app-loading>
+  </div>
   } @else if (error()) {
-    <div class="state-container">
-      <p class="error-text">Eroare: {{ error() }}</p>
-    </div>
+  <div class="state-container">
+    <p class="error-text">Eroare: {{ error() }}</p>
+  </div>
   } @else {
-    <div class="tasks-container">
-      @for (task of sortedTasks(); track task.taskId) {
-        
-        <app-task-card 
-        [task]="task"
-        (deleteTaskEvent)="deleteTaskFromList($event)"
-        (taskUpdatedEvent)="updateTaskFromList($event)"
-        ></app-task-card>
+  <div class="tasks-container">
+    @for (task of tasks(); track task.taskId) {
 
-      } @empty {
-        <div class="state-container empty-state">
-          <p>No tasks found with the selected status.</p>
-        </div>
-      }
-    </div>
+    <app-task-card [task]="task" (deleteTaskEvent)="deleteTaskFromList($event)"
+      (taskUpdatedEvent)="updateTaskFromList($event)"></app-task-card>
 
-    @if (totalPages() > 1) {
-    <div class="pagination">
-      <button class="page-btn" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">‹</button>
-
-      @for (p of pageNumbers(); track p) {
-      <button class="page-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p + 1 }}</button>
-      }
-
-      <button class="page-btn" [disabled]="currentPage() >= totalPages() - 1"
-        (click)="goToPage(currentPage() + 1)">›</button>
+    } @empty {
+    <div class="state-container empty-state">
+      <p>No tasks found with the selected status.</p>
     </div>
     }
+  </div>
+
+  @if (totalPages() > 1) {
+  <div class="pagination">
+    <button class="page-btn" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">‹</button>
+
+    @for (p of pageNumbers(); track p) {
+    <button class="page-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p + 1 }}</button>
+    }
+
+    <button class="page-btn" [disabled]="currentPage() >= totalPages() - 1"
+      (click)="goToPage(currentPage() + 1)">›</button>
+  </div>
+  }
   }
 </div>
