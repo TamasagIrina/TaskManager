@@ -88,7 +88,9 @@ public class TaskController {
             @RequestParam(required = false) String projectName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
@@ -98,7 +100,7 @@ public class TaskController {
                 .dueDateTime(dueDateTime)
                 .build();
 
-        return taskService.filterTasks(filter, page, size);
+        return taskService.filterTasks(filter, page, size, sortBy, sortDir);
     }
 
     @GetMapping("/filter-tasks-user/{id}")
@@ -110,7 +112,9 @@ public class TaskController {
             @RequestParam(required = false) String projectName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTime,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
         TaskFilterDTO filter = TaskFilterDTO.builder()
                 .taskName(taskName)
@@ -119,7 +123,7 @@ public class TaskController {
                 .dueDateTime(dueDateTime)
                 .build();
 
-        return taskService.filterTasksUser(id, filter, page, size);
+        return taskService.filterTasksUser(id, filter, page, size, sortBy, sortDir);
     }
 
     @PatchMapping("/{id}/status")

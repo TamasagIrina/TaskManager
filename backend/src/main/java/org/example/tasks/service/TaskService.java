@@ -146,8 +146,9 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    // filtreaza task-urile user-ului in functie de criteriile primite (paginat)
-    public PageResponse<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter, int page, int size) {
+    // filtreaza task-urile user-ului in functie de criteriile primite (paginat + sortat)
+    public PageResponse<TaskDTO> filterTasksUser(Long userId, TaskFilterDTO filter, int page, int size,
+                                                 String sortBy, String sortDir) {
 
         List<TaskDTO> result = new ArrayList<>();
 
@@ -160,11 +161,12 @@ public class TaskService {
             }
         }
 
-        return paginate(sortByDueDate(result), page, size);
+        return paginate(sortTasks(result, sortBy, sortDir), page, size);
     }
 
-    // filtreaza task-urile in functie de criteriile primite (paginat)
-    public PageResponse<TaskDTO> filterTasks(TaskFilterDTO filter, int page, int size) {
+    // filtreaza task-urile in functie de criteriile primite (paginat + sortat)
+    public PageResponse<TaskDTO> filterTasks(TaskFilterDTO filter, int page, int size,
+                                             String sortBy, String sortDir) {
 
         List<TaskDTO> result = new ArrayList<>();
 
@@ -178,14 +180,31 @@ public class TaskService {
             }
         }
 
-        return paginate(sortByDueDate(result), page, size);
+        return paginate(sortTasks(result, sortBy, sortDir), page, size);
     }
 
-    // sortare stabila dupa due date (nulls last), apoi dupa id, ca paginile sa fie consistente
-    private List<TaskDTO> sortByDueDate(List<TaskDTO> tasks) {
-        tasks.sort(Comparator
-                .comparing(TaskDTO::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(TaskDTO::getTaskId, Comparator.nullsLast(Comparator.naturalOrder())));
+    // sortare dinamica dupa id / username / taskName, ascendent sau descendent
+    private List<TaskDTO> sortTasks(List<TaskDTO> tasks, String sortBy, String sortDir) {
+        String field = sortBy == null ? "id" : sortBy.toLowerCase();
+
+        Comparator<TaskDTO> comparator = switch (field) {
+            case "username" -> Comparator.comparing(TaskDTO::getUsername,
+                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+            case "taskname" -> Comparator.comparing(TaskDTO::getTaskName,
+                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+            default -> Comparator.comparing(TaskDTO::getTaskId,
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+        };
+
+        // tie-breaker stabil dupa id, ca paginile sa fie deterministe
+        comparator = comparator.thenComparing(TaskDTO::getTaskId,
+                Comparator.nullsLast(Comparator.naturalOrder()));
+
+        if ("desc".equalsIgnoreCase(sortDir)) {
+            comparator = comparator.reversed();
+        }
+
+        tasks.sort(comparator);
         return tasks;
     }
 
