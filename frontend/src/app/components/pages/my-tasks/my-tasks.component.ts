@@ -35,7 +35,9 @@ export class MyTasksComponent implements OnInit {
 
   sortOptions = [
     { field: 'id', label: 'Id' },
+    { field: 'dueDate', label: 'Due date' },
     { field: 'taskName', label: 'Task name' }
+
   ];
   sortField = signal<string>('id');
   sortDir = signal<'asc' | 'desc'>('asc');
@@ -133,7 +135,7 @@ export class MyTasksComponent implements OnInit {
     });
   }
 
-  deleteTaskFromList(task: TaskDTOResponse){
+  deleteTaskFromList(task: TaskDTOResponse) {
     const isConfirmed = window.confirm(`Are you sure you want to delete the task "${task.taskName}"?`);
 
     if (isConfirmed) {
@@ -142,16 +144,16 @@ export class MyTasksComponent implements OnInit {
           alert(`Task "${task.taskName}" has been deleted.`);
           this.getTasks();
         },
-        error: (err) => { 
+        error: (err) => {
           console.error(`Error deleting task "${task.taskName}":`, err);
           alert(`Failed to delete task "${task.taskName}". Please try again later.`);
-        } 
+        }
       });
     }
-    
+
   }
 
-  updateTaskFromList(task: TaskDTOResponse){
+  updateTaskFromList(task: TaskDTOResponse) {
     this.getTasks();
   }
 
@@ -186,6 +188,6 @@ export class MyTasksComponent implements OnInit {
       }
     });
   }
-  
+
 
 }

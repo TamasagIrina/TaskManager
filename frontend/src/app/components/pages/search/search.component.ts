@@ -36,8 +36,10 @@ export class SearchComponent {
 
   sortOptions = [
     { field: 'id', label: 'Id' },
+     { field: 'dueDate', label: 'Due date' },
     { field: 'username', label: 'User' },
     { field: 'taskName', label: 'Task name' }
+   
   ];
   // userul normal nu vede sortarea dupa User 
   visibleSortOptions = computed(() =>
