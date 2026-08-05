@@ -192,6 +192,8 @@ public class TaskService {
                     Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
             case "taskname" -> Comparator.comparing(TaskDTO::getTaskName,
                     Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+            case "duedate" -> Comparator.comparing(TaskDTO::getDueDate,
+                    Comparator.nullsLast(Comparator.naturalOrder()));
             default -> Comparator.comparing(TaskDTO::getTaskId,
                     Comparator.nullsLast(Comparator.naturalOrder()));
         };
